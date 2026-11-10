@@ -130,21 +130,21 @@ namespace CottageMagic
 
             // The CC0 interior sheet supplies the fireplace, clock, window,
             // door and the small furnishings used as the crafting stations.
-            var fireplace = PixelArt.Slice("GrannyIndoor", 0, 256, 96, 48);
-            var clock = PixelArt.Slice("GrannyIndoor", 32, 224, 32, 32);
+            var fireplace = PixelArt.Slice("GrannyIndoor", 0, 272, 96, 48);
+            var clock = PixelArt.Slice("GrannyIndoor", 32, 224, 32, 48);
             var window = PixelArt.Slice("GrannyIndoor", 64, 224, 32, 32);
             var insideDoor = PixelArt.Slice("GrannyIndoor", 96, 224, 32, 64);
-            var bluePot = PixelArt.Slice("GrannyIndoor", 128, 224, 48, 32);
-            var workTable = PixelArt.Slice("GrannyIndoor", 0, 240, 32, 16);
-            var magicCabinet = PixelArt.Slice("GrannyIndoor", 128, 224, 48, 32);
+            var enchantedOrb = PixelArt.Slice("GrannyIndoor", 128, 240, 48, 32);
+            var workTable = PixelArt.Slice("PunyWorld", 64, 496, 32, 16);
+            var wallPainting = PixelArt.Slice("GrannyIndoor", 0, 240, 32, 16);
 
             MakeStationWithSprite(_home, "Potion Hearth", fireplace, StationKind.Potion, "Brew a potion", new Vector2(-3.4f, 2.2f), 1);
             MakeStationWithSprite(_home, "Scroll Desk", workTable, StationKind.Scroll, "Make scrolls and ink", new Vector2(2.5f, 1.7f), 1);
-            MakeStationWithSprite(_home, "Enchantment Cabinet", magicCabinet, StationKind.Enchant, "Enchant a blade", new Vector2(2.8f, -1.4f), 1);
+            MakeStationWithSprite(_home, "Enchanted Orb Table", enchantedOrb, StationKind.Enchant, "Enchant a blade", new Vector2(2.8f, -1.4f), 1);
             MakeStationWithSprite(_home, "Resting Clock", clock, StationKind.Rest, "Rest until morning", new Vector2(-4.3f, -2.3f), 1);
             MakeSprite(_home, "Window", window, new Vector2(3.7f, 4.0f), -5);
             MakeSprite(_home, "Interior cottage door", insideDoor, new Vector2(0, -4.8f), -6);
-            MakeSprite(_home, "Blue Flower Pot", bluePot, new Vector2(4.3f, 3.4f), -4);
+            MakeSprite(_home, "Botanical Wall Painting", wallPainting, new Vector2(4.3f, 3.4f), -4);
             MakeInteractable(_home, "Back Door", StationKind.DoorOut, "Go out to the garden", new Vector2(0, -3.75f));
             AddBounds(_home, -6.0f, 6.0f, -6.0f, 6.0f, 0.7f);
         }
