@@ -30,7 +30,7 @@ namespace CottageMagic
             _body.freezeRotation = true;
             _body.interpolation = RigidbodyInterpolation2D.Interpolate;
             _body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-            _body.linearDamping = 4f;
+            _body.linearDamping = 0f;
             _body.constraints = RigidbodyConstraints2D.FreezeRotation;
             var collider = GetComponent<CircleCollider2D>();
             collider.radius = 0.25f;
@@ -72,7 +72,7 @@ namespace CottageMagic
             if (_camera == null) return;
             Vector3 desired = new Vector3(transform.position.x, transform.position.y + 0.55f, -10f);
             _cameraTarget = Vector3.SmoothDamp(_cameraTarget == Vector3.zero ? desired : _cameraTarget, desired, ref _cameraVelocity, 0.12f);
-            const float pixelStep = 1f / 16f;
+            float pixelStep = (_camera.orthographicSize * 2f) / Mathf.Max(1, Screen.height);
             _camera.transform.position = new Vector3(
                 Mathf.Round(_cameraTarget.x / pixelStep) * pixelStep,
                 Mathf.Round(_cameraTarget.y / pixelStep) * pixelStep,

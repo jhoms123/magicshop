@@ -8,7 +8,7 @@ This starter bundles existing artwork and a font. No pixel-art images were gener
 - Packs: [16x16 Puny World Tileset](https://opengameart.org/content/16x16-puny-world-tileset) and [Puny Characters](https://opengameart.org/content/puny-characters).
 - License: CC0 1.0. The OpenGameArt pages explicitly permit personal and commercial use without attribution.
 - Bundled files: `Assets/Resources/Art/PunyWorld.png`, `PunyPlayer.png`, and `PunyMerchant.png`.
-- The source character sheets are the Puny `player.png` and `vela.png` spritesheets. Their original 32x32 frames are used for the player and traveling merchant animations.
+- The source character sheets are the Puny `player.png` and `vela.png` spritesheets. The source remains unchanged; runtime frame crops remove transparent margins from its original 32x32 cells, preserve the cell pivot, and animate the player and visiting merchant.
 - SHA-256 for the unmodified Puny World sheet: `14d285bde8dee96cb0113947c8cce4922b86bf1d033b19123112145c7cef3a38`.
 
 ## Shepardskin House Sets

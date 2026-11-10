@@ -25,6 +25,7 @@ namespace CottageMagic
         private Texture2D _dialogTexture, _panelTexture, _cardTexture, _buttonTexture, _buttonHoverTexture;
         private MagicShopDirector Game => MagicShopDirector.Instance;
         public bool BlocksWorldInput => _panel != Panel.None;
+        public bool IsTraderPanelOpen => _panel == Panel.Trader;
 
         private void Start()
         {
@@ -46,23 +47,39 @@ namespace CottageMagic
         }
 
         public void ClosePanel() { _panel = Panel.None; _scroll = Vector2.zero; }
+        public void CloseTraderPanel() { if (_panel == Panel.Trader) ClosePanel(); }
         public void ToggleInventory() { _panel = _panel == Panel.Inventory ? Panel.None : Panel.Inventory; _scroll = Vector2.zero; }
         public void OpenOrders() { _panel = Panel.Orders; _scroll = Vector2.zero; }
         public void OpenPlanting(int plotIndex) { _panel = Panel.Planting; _plotIndex = plotIndex; _seedSlot = _soilSlot = _specialSlot = null; _scroll = Vector2.zero; }
         public void OpenPotion() { _panel = Panel.Potion; _potionSlots.Clear(); _scroll = Vector2.zero; }
         public void OpenScroll() { _panel = Panel.Scroll; _inkSlot = null; _scroll = Vector2.zero; }
         public void OpenEnchant() { _panel = Panel.Enchant; _scrollSlot = null; _scroll = Vector2.zero; }
-        public void OpenTrader() { _panel = Panel.Trader; _scroll = Vector2.zero; }
+        public void OpenTrader()
+        {
+            if (Game != null && !Game.TraderAvailable) { SetToast("The trader is away. " + Game.NextTraderVisitText + "."); return; }
+            _panel = Panel.Trader; _scroll = Vector2.zero;
+        }
+
+        private Texture2D PixelTexture(string resource)
+        {
+            var texture = Resources.Load<Texture2D>("Art/" + resource);
+            if (texture != null)
+            {
+                texture.filterMode = FilterMode.Point;
+                texture.wrapMode = TextureWrapMode.Clamp;
+            }
+            return texture;
+        }
 
         private void EnsureStyles()
         {
             if (_stylesReady) return;
             _stylesReady = true;
-            _dialogTexture = Resources.Load<Texture2D>("Art/PixelUI_Dialog");
-            _panelTexture = Resources.Load<Texture2D>("Art/PixelUI_Panel");
-            _cardTexture = Resources.Load<Texture2D>("Art/PixelUI_Card");
-            _buttonTexture = Resources.Load<Texture2D>("Art/PixelUI_Button");
-            _buttonHoverTexture = Resources.Load<Texture2D>("Art/PixelUI_ButtonHover");
+            _dialogTexture = PixelTexture("PixelUI_Dialog");
+            _panelTexture = PixelTexture("PixelUI_Panel");
+            _cardTexture = PixelTexture("PixelUI_Card");
+            _buttonTexture = PixelTexture("PixelUI_Button");
+            _buttonHoverTexture = PixelTexture("PixelUI_ButtonHover");
 
             Color ink = new Color32(71, 51, 35, 255);
             Color mutedInk = new Color32(104, 91, 67, 255);
@@ -74,7 +91,7 @@ namespace CottageMagic
             _hudStyle.normal.background = _panelTexture != null ? _panelTexture : GUI.skin.box.normal.background;
             _hudStyle.border = new RectOffset(5, 5, 5, 5);
 
-            _titleStyle = new GUIStyle(GUI.skin.label) { fontSize = 23, fontStyle = FontStyle.Bold, wordWrap = true };
+            _titleStyle = new GUIStyle(GUI.skin.label) { fontSize = 19, fontStyle = FontStyle.Bold, wordWrap = true };
             _titleStyle.normal.textColor = ink;
             _textStyle = new GUIStyle(GUI.skin.label) { fontSize = 15, wordWrap = true, richText = true };
             _textStyle.normal.textColor = ink;
@@ -112,7 +129,8 @@ namespace CottageMagic
         {
             if (Game == null || Game.Save == null) return;
             EnsureStyles();
-            float scale = Mathf.Min(Screen.width / 1280f, Screen.height / 720f);
+            float fitScale = Mathf.Min(Screen.width / 1280f, Screen.height / 720f);
+            float scale = fitScale >= 1f ? Mathf.Floor(fitScale) : fitScale;
             if (scale <= 0) scale = 1;
             var oldMatrix = GUI.matrix;
             GUI.matrix = Matrix4x4.TRS(new Vector3((Screen.width - 1280 * scale) * 0.5f, (Screen.height - 720 * scale) * 0.5f, 0), Quaternion.identity, Vector3.one * scale);
@@ -135,17 +153,16 @@ namespace CottageMagic
             GUILayout.Label("Day " + Game.Day + "   " + Game.ClockText() + "   ·   30 min / day", _smallStyle);
             GUILayout.EndArea();
 
-            int activeOrders = Game.Orders.Count;
-            GUI.Box(new Rect(930, 18, 330, 80), GUIContent.none, _hudStyle);
-            GUILayout.BeginArea(new Rect(948, 26, 298, 62));
-            GUILayout.Label("OPEN REQUESTS  " + activeOrders, _titleStyle);
-            var soonest = Game.Orders.OrderBy(o => o.dueAt).FirstOrDefault();
-            if (soonest != null) GUILayout.Label(soonest.request + " · " + DaysText(Game.GetOrderDaysLeft(soonest)) + " left", _smallStyle);
+            GUI.Box(new Rect(884, 18, 376, 112), GUIContent.none, _hudStyle);
+            GUILayout.BeginArea(new Rect(902, 25, 340, 96));
+            GUILayout.Label("TRADE & REQUEST BOX", _titleStyle);
+            GUILayout.Label(Game.PendingRequestCount + " new  ·  " + Game.ActiveCommissionCount + " active", _smallStyle);
+            GUILayout.Label(Game.TraderStatusText, _smallStyle);
             GUILayout.EndArea();
 
             GUI.Box(new Rect(818, 680, 442, 28), GUIContent.none, _hudStyle);
             GUILayout.BeginArea(new Rect(831, 683, 416, 22));
-            GUILayout.Label("WASD MOVE   ·   E USE   ·   I SATCHEL   ·   J LEDGER", _smallStyle);
+            GUILayout.Label("WASD MOVE   ·   E USE   ·   I SATCHEL   ·   J BOX", _smallStyle);
             GUILayout.EndArea();
 
             if (Game.Player != null && !string.IsNullOrEmpty(Game.Player.Prompt))
@@ -204,7 +221,7 @@ namespace CottageMagic
             switch (_panel)
             {
                 case Panel.Inventory: return "Satchel";
-                case Panel.Orders: return "Request Ledger";
+                case Panel.Orders: return "Trade & Request Box";
                 case Panel.Planting: return "Garden · Bed " + (_plotIndex + 1);
                 case Panel.Potion: return "Potion Hearth";
                 case Panel.Scroll: return "Ink & Scroll Desk";
@@ -237,18 +254,46 @@ namespace CottageMagic
 
         private void DrawOrders()
         {
-            GUILayout.Label("Requests pay coins and reputation. Deliver sooner for up to 75% more reputation.", _smallStyle);
+            GUILayout.Label("Customer requests arrive here. Accept one to start its deadline, or decline it with no penalty.", _smallStyle);
             GUILayout.Space(10);
-            foreach (var order in Game.Orders.OrderBy(o => o.dueAt))
+            foreach (var order in Game.Orders.OrderBy(o => o.accepted).ThenBy(o => o.dueAt).ToList())
             {
                 GUILayout.BeginVertical(_cardStyle);
                 GUILayout.Label(order.request + "  ·  " + order.client, _textStyle);
-                GUILayout.Label(order.kind + " · Power " + order.minimumPower + "+  ·  " + order.reward + " coins / " + order.reputationReward + " renown  ·  " + DaysText(Game.GetOrderDaysLeft(order)), _smallStyle);
-                GUILayout.EndVertical(); GUILayout.Space(5);
+                GUILayout.Label(order.kind + " · Power " + order.minimumPower + "+  ·  " + order.reward + " coins / " + order.reputationReward + " renown", _smallStyle);
+                if (order.accepted)
+                {
+                    GUILayout.Label("Commission active  ·  " + DaysText(Game.GetOrderDaysLeft(order)) + " remaining", _smallStyle);
+                    if (GUILayout.Button("Deliver this request", _buttonStyle, GUILayout.Height(38)))
+                        Run((out string msg) => Game.DeliverOrder(order.id, out msg));
+                }
+                else
+                {
+                    GUILayout.Label("New request  ·  deadline begins after you accept  ·  " + order.durationDays + (order.durationDays == 1 ? " day to complete" : " days to complete"), _smallStyle);
+                    GUILayout.BeginHorizontal();
+                    if (GUILayout.Button("Accept request", _buttonStyle, GUILayout.Height(38)))
+                        Run((out string msg) => Game.AcceptOrder(order.id, out msg));
+                    if (GUILayout.Button("Decline", _buttonStyle, GUILayout.Height(38)))
+                        Run((out string msg) => Game.DeclineOrder(order.id, out msg));
+                    GUILayout.EndHorizontal();
+                }
+                GUILayout.EndVertical();
+                GUILayout.Space(6);
             }
-            if (Game.Orders.Count == 0) GUILayout.Label("No open requests. New customers visit at the start of each in-game day.", _textStyle);
+            if (Game.Orders.Count == 0) GUILayout.Label("The box is clear. New requests arrive with each morning's post.", _textStyle);
+
             GUILayout.Space(12);
-            if (ActionButton("Deliver a matching finished order", () => Run(Game.DeliverBest))) { }
+            GUILayout.Label("RECENT TRADES & REQUEST HISTORY", _titleStyle);
+            if (Game.ActivityLog.Count == 0) GUILayout.Label("Purchases, sales, request decisions and deliveries will be recorded here.", _smallStyle);
+            for (int i = Game.ActivityLog.Count - 1; i >= 0; i--)
+            {
+                var entry = Game.ActivityLog[i];
+                GUILayout.BeginHorizontal(_cardStyle);
+                GUILayout.Label("D" + entry.day + "  " + entry.time, _smallStyle, GUILayout.Width(112));
+                GUILayout.Label(entry.message, _smallStyle, GUILayout.ExpandWidth(true));
+                GUILayout.EndHorizontal();
+                GUILayout.Space(4);
+            }
         }
 
         private void DrawPlanting()
@@ -413,6 +458,12 @@ namespace CottageMagic
 
         private void DrawTrader()
         {
+            if (!Game.TraderAvailable)
+            {
+                GUILayout.Label("The traveling trader has packed up for the day.", _textStyle);
+                GUILayout.Label(Game.NextTraderVisitText, _smallStyle);
+                return;
+            }
             GUILayout.Label("The merchant wanders the lane and trades useful supplies for a fair price.", _smallStyle);
             GUILayout.Space(8);
             GUILayout.Label("BUY", _titleStyle);

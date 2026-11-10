@@ -5,7 +5,7 @@ using UnityEngine;
 namespace CottageMagic
 {
     public enum ItemKind { Seed, Ingredient, Soil, Water, Food, Paper, Ink, Potion, Scroll, Weapon, Material, Other }
-    public enum StationKind { Potion, Scroll, Enchant, Planting, DoorIn, DoorOut, OrderBoard, Trader, Rest, None }
+    public enum StationKind { Potion, Scroll, Enchant, Planting, DoorIn, DoorOut, OrderBoard, Trader, Rest, Sign, None }
 
     [Serializable]
     public sealed class ItemRecord
@@ -47,15 +47,25 @@ namespace CottageMagic
         public int minimumPower;
         public int reward;
         public int reputationReward;
+        public int durationDays;
         public double issuedAt;
         public double dueAt;
+        public bool accepted;
         public bool penalized;
+    }
+
+    [Serializable]
+    public sealed class ShopLogEntry
+    {
+        public int day;
+        public string time;
+        public string message;
     }
 
     [Serializable]
     public sealed class SaveData
     {
-        public int version = 1;
+        public int version = 2;
         public int gold = 75;
         public int reputation;
         public double worldMinutes = 480;
@@ -66,6 +76,7 @@ namespace CottageMagic
         public List<ItemRecord> inventory = new List<ItemRecord>();
         public List<PlantRecord> plots = new List<PlantRecord>();
         public List<OrderRecord> orders = new List<OrderRecord>();
+        public List<ShopLogEntry> activityLog = new List<ShopLogEntry>();
     }
 
     public sealed class ItemTemplate
