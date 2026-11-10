@@ -14,7 +14,7 @@ namespace CottageMagic
         private Vector2 _lastMove = Vector2.down;
         private float _animationTimer;
         private int _frame;
-        private Vector2 _cameraVelocity;
+        private Vector3 _cameraVelocity;
         private Vector3 _cameraTarget;
         private const float WalkSpeed = 3.15f;
         private const float Acceleration = 24f;

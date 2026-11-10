@@ -16,7 +16,6 @@ namespace CottageMagic
             var camera = cameraObject.AddComponent<Camera>(); camera.orthographic = true; camera.orthographicSize = 6.45f;
             camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = new Color(0.23f, 0.28f, 0.22f);
             camera.nearClipPlane = 0.1f; camera.farClipPlane = 100f;
-            cameraObject.AddComponent<AudioListener>();
 
             var worldObject = new GameObject("World"); worldObject.transform.SetParent(root.transform, false);
             var world = worldObject.AddComponent<WorldAssembler>(); world.Build(); director.World = world;
