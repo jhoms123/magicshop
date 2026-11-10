@@ -11,6 +11,13 @@ This starter bundles existing artwork and a font. No pixel-art images were gener
 - The source character sheets are the Puny `player.png` and `vela.png` spritesheets. Their original 32x32 frames are used for the player and traveling merchant animations.
 - SHA-256 for the unmodified Puny World sheet: `14d285bde8dee96cb0113947c8cce4922b86bf1d033b19123112145c7cef3a38`.
 
+## Shepardskin House Sets
+
+- Artist: Shepardskin.
+- Pack: [House Sets](https://lpc.opengameart.org/content/house-sets).
+- License: CC0 1.0. The source listing says attribution is optional.
+- Bundled art: `Assets/Resources/Art/CottageExterior.png`, converted without redrawing or resizing from the pack's `house3x1.gif` cottage sprite.
+
 ## Kenney Tiny Town and Tiny Farm
 
 - Artist: Kenney (www.kenney.nl).

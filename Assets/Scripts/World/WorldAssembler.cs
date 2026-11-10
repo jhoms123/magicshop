@@ -59,18 +59,28 @@ namespace CottageMagic
             for (int x = -5; x <= 7; x++) AddPathCell(dirtTile, x, -1);
             for (int y = -1; y <= 0; y++) AddPathCell(dirtTile, 0, y);
 
-            // A complete tiny cottage sprite from the same CC0 world tileset,
-            // enlarged with point filtering so its pixels stay crisp.
-            var house = PixelArt.Slice("PunyWorld", 80, 416, 16, 16, 16f / 3f);
-            var housePosition = new Vector2(-5.5f, 2.65f);
+            // Use the complete, original CC0 cottage sprite. The old crop was
+            // only one roof tile enlarged to house size, which is why it read
+            // as an odd floating block instead of a cottage.
+            var house = PixelArt.Slice("CottageExterior", 0, 0, 63, 52);
+            var housePosition = new Vector2(-5.0f, 3.05f);
             var houseObject = MakeSprite(_yard, "Cottage Exterior", house, housePosition, 19);
             houseObject.GetComponent<SpriteRenderer>().sortingOrder = 40 - Mathf.RoundToInt(housePosition.y * 4f);
-            MakeWall(_yard, housePosition + new Vector2(-1.35f, 0.1f), new Vector2(0.3f, 2.0f));
-            MakeWall(_yard, housePosition + new Vector2(1.35f, 0.1f), new Vector2(0.3f, 2.0f));
-            MakeWall(_yard, housePosition + new Vector2(0f, 1.25f), new Vector2(2.4f, 0.3f));
-            MakeWall(_yard, housePosition + new Vector2(-0.85f, -1.25f), new Vector2(0.7f, 0.3f));
-            MakeWall(_yard, housePosition + new Vector2(0.85f, -1.25f), new Vector2(0.7f, 0.3f));
-            YardDoorPosition = housePosition + new Vector2(0f, -1.7f);
+            float houseHalfWidth = house.bounds.size.x * 0.5f;
+            float houseHalfHeight = house.bounds.size.y * 0.5f;
+            float sideWallY = housePosition.y - 0.05f;
+            MakeWall(_yard, housePosition + new Vector2(-houseHalfWidth + 0.08f, 0.05f), new Vector2(0.24f, 2.8f));
+            MakeWall(_yard, housePosition + new Vector2(houseHalfWidth - 0.08f, 0.05f), new Vector2(0.24f, 2.8f));
+            MakeWall(_yard, housePosition + new Vector2(0f, houseHalfHeight - 0.22f), new Vector2(house.bounds.size.x - 0.3f, 0.24f));
+            // The sourced cottage has its door just right of center.
+            float doorwayOffsetX = 0.68f;
+            float doorwayWidth = 0.82f;
+            float bottomWallY = housePosition.y - houseHalfHeight + 0.12f;
+            float leftSegmentWidth = houseHalfWidth + doorwayOffsetX - doorwayWidth * 0.5f;
+            float rightSegmentWidth = houseHalfWidth - doorwayOffsetX - doorwayWidth * 0.5f;
+            MakeWall(_yard, new Vector2(housePosition.x - houseHalfWidth + leftSegmentWidth * 0.5f, bottomWallY), new Vector2(leftSegmentWidth, 0.24f));
+            MakeWall(_yard, new Vector2(housePosition.x + houseHalfWidth - rightSegmentWidth * 0.5f, bottomWallY), new Vector2(rightSegmentWidth, 0.24f));
+            YardDoorPosition = new Vector2(housePosition.x + doorwayOffsetX, sideWallY - houseHalfHeight + 0.22f);
             MakeInteractable(_yard, "Cottage Door", StationKind.DoorIn, "Enter the cottage", YardDoorPosition);
 
             // Full tree clusters from Puny World frame the yard without exposing
