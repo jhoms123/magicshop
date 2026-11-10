@@ -5,8 +5,6 @@ namespace CottageMagic
     [RequireComponent(typeof(Rigidbody2D), typeof(CircleCollider2D), typeof(SpriteRenderer))]
     public sealed class PlayerMotor : MonoBehaviour
     {
-        private readonly int[] _rowForDirection = { 0, 2, 4, 1 };
-        private readonly Vector2[] _facing = { Vector2.down, Vector2.right, Vector2.up, Vector2.left };
         private Rigidbody2D _body;
         private SpriteRenderer _sprite;
         private Camera _camera;
@@ -16,6 +14,7 @@ namespace CottageMagic
         private int _frame;
         private Vector3 _cameraVelocity;
         private Vector3 _cameraTarget;
+        private int _direction;
         private const float WalkSpeed = 3.15f;
         private const float Acceleration = 24f;
         private const float Braking = 30f;
@@ -37,7 +36,7 @@ namespace CottageMagic
             collider.radius = 0.25f;
             collider.offset = new Vector2(0, -0.12f);
             _sprite = GetComponent<SpriteRenderer>();
-            _sprite.sprite = PixelArt.MaleFrame(0, 0);
+            _sprite.sprite = PixelArt.CharacterFrame("PunyPlayer", _direction, false, 1);
             _sprite.sortingOrder = 40;
         }
 
@@ -107,26 +106,24 @@ namespace CottageMagic
 
         private void Animate(bool walking)
         {
-            int direction = 0;
-            float largest = 0;
-            for (int i = 0; i < _facing.Length; i++)
-            {
-                float dot = Vector2.Dot(_lastMove, _facing[i]);
-                if (dot > largest) { largest = dot; direction = i; }
-            }
+            if (_lastMove.x < -0.35f) _direction = 2;
+            else if (_lastMove.x > 0.35f) _direction = 6;
+            else if (_lastMove.y > 0.35f) _direction = 4;
+            else _direction = 0;
+
             if (!walking)
             {
-                _frame = 0;
-                _sprite.sprite = PixelArt.MaleFrame(0, _rowForDirection[direction]);
+                _frame = 1;
+                _sprite.sprite = PixelArt.CharacterFrame("PunyPlayer", _direction, false, _frame);
                 return;
             }
             _animationTimer += Time.deltaTime;
-            if (_animationTimer >= 0.105f)
+            if (_animationTimer >= 0.12f)
             {
-                _animationTimer -= 0.105f;
-                _frame = (_frame + 1) % 5;
-                _sprite.sprite = PixelArt.MaleFrame(_frame, _rowForDirection[direction]);
+                _animationTimer -= 0.12f;
+                _frame = (_frame + 1) % 3;
             }
+            _sprite.sprite = PixelArt.CharacterFrame("PunyPlayer", _direction, true, _frame);
         }
     }
 }

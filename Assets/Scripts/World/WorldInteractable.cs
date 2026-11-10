@@ -78,14 +78,24 @@ namespace CottageMagic
     public sealed class IdlePixelAnimation : MonoBehaviour
     {
         public SpriteRenderer Target;
+        public string CharacterSheet;
+        public int FacingDirection;
         private Vector3 _start;
         private float _phase;
+        private float _frameTimer;
+        private int _frame;
         private void Start() { _start = transform.localPosition; _phase = transform.position.x * 0.7f; }
         private void Update()
         {
             _phase += Time.deltaTime * 2.0f;
             int pixels = Mathf.RoundToInt(Mathf.Sin(_phase) * 1.0f);
             transform.localPosition = _start + Vector3.up * pixels / 16f;
+            if (Target != null && !string.IsNullOrEmpty(CharacterSheet))
+            {
+                _frameTimer += Time.deltaTime;
+                if (_frameTimer >= 0.75f) { _frameTimer = 0; _frame = (_frame + 1) % 3; }
+                Target.sprite = PixelArt.CharacterFrame(CharacterSheet, FacingDirection, false, _frame);
+            }
         }
     }
 }

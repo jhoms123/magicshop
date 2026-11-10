@@ -23,7 +23,7 @@ The project uses Unity's built-in 2D physics and IMGUI, so there are no third-pa
 
 ## What is in the starter
 
-- Smoothly accelerated, normalized 8-way movement with a collision body, interpolated physics, four-direction walk animation, and a following camera snapped to the pixel grid.
+- Smoothly accelerated, normalized 8-way movement with a collision body, interpolated physics, four-cardinal idle and walk animation from CC0 character sheets, and a following camera snapped to the pixel grid.
 - A cozy yard with a cottage entrance, a small starting garden, six beds, paths, trees, a trader and an order board; the last three beds cost 55 coins each to open.
 - Five seeds with four visible growth stages. Plants need six waterings on separate in-game days; Mooncap and Dreammint need Moonwater, and the carnivorous Bitebloom needs a morsel in its special-item slot.
 - Three planting slots for seed, optional soil and an optional magical or feeding item. Rich soil and charms improve harvest output.
@@ -39,7 +39,7 @@ An in-game day lasts 30 real-world minutes while the game is running. Orders and
 
 Runtime systems are organized under `Assets/Scripts`:
 
-- `Core/GameData.cs` contains inventory, plant, order and save records plus the starter item catalog.
+- `Data/GameData.cs` contains inventory, plant, order and save records plus the starter item catalog.
 - `Core/MagicShopDirector.cs` owns time, saving, planting, crafting, trading and order logic.
 - `Player/PlayerMotor.cs` handles movement, animation and nearby interactions.
 - `World/WorldAssembler.cs` builds the yard and home; `World/PixelArt.cs` slices the credited source atlases at runtime.
@@ -49,4 +49,4 @@ Game balance and initial stock can be changed in `GameData.cs`. The visual world
 
 ## Asset credits
 
-Open [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for links and license notes. All included pixel art is copied from CC0 packs and retained as source pixels; the Kenney source tiles were only arranged into runtime atlases. The UI font is Silkscreen under the SIL Open Font License.
+Open [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for links and license notes. All included pixel art is copied from open-license packs and retained as source pixels; the Kenney source tiles were only arranged into runtime atlases. The HUD and menus use a CC0 pixel UI pack, and the UI font is Silkscreen under the SIL Open Font License.

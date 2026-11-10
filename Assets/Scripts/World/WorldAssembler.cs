@@ -38,61 +38,78 @@ namespace CottageMagic
 
         private void BuildYard()
         {
-            var grass = PixelArt.Slice("TinyTownAtlas", 0, 0, 16, 16);
-            var path = PixelArt.Slice("TinyTownAtlas", 0, 16, 16, 16);
+            // Use complete source tiles from the CC0 Puny World sheet. The old
+            // scene repeated a plant fragment as grass and stitched unrelated
+            // atlas cells into the house and trees.
+            var grassTiles = new[] {
+                PixelArt.Slice("PunyWorld", 0, 0, 16, 16),
+                PixelArt.Slice("PunyWorld", 16, 0, 16, 16),
+                PixelArt.Slice("PunyWorld", 32, 0, 16, 16),
+                PixelArt.Slice("PunyWorld", 16, 16, 16, 16)
+            };
             for (int x = -13; x <= 13; x++)
-            for (int y = -9; y <= 9; y++)
-                MakeSprite(_yard, "Grass", grass, new Vector2(x, y), -30);
+            for (int y = -8; y <= 8; y++)
+            {
+                int variant = Mathf.Abs(x * 17 + y * 29 + x * y * 3) % grassTiles.Length;
+                MakeSprite(_yard, "Lawn tile", grassTiles[variant], new Vector2(x, y), -30);
+            }
 
-            // A packed dirt path is assembled from Kenney's original town tiles.
-            for (int y = -6; y <= 3; y++) AddGroundCell(path, -4, y);
-            for (int x = -4; x <= 4; x++) AddGroundCell(path, x, -6);
-            for (int y = -5; y <= -1; y++) AddGroundCell(path, 3, y);
+            var dirtTile = PixelArt.Slice("PunyWorld", 112, 16, 16, 16);
+            for (int y = -1; y <= 2; y++) AddPathCell(dirtTile, -5, y);
+            for (int x = -5; x <= 7; x++) AddPathCell(dirtTile, x, -1);
+            for (int y = -1; y <= 0; y++) AddPathCell(dirtTile, 0, y);
 
-            var house = PixelArt.Slice("TinyTownAtlas", 0, 64, 48, 48);
-            var houseObject = MakeSprite(_yard, "Cottage Exterior", house, new Vector2(-5.0f, 5.15f), 19);
-            var frontWall = houseObject.AddComponent<BoxCollider2D>(); frontWall.size = new Vector2(2.7f, 0.45f); frontWall.offset = new Vector2(-0.55f, -1.12f);
-            YardDoorPosition = new Vector2(-3.8f, 3.85f);
+            // A complete tiny cottage sprite from the same CC0 world tileset,
+            // enlarged with point filtering so its pixels stay crisp.
+            var house = PixelArt.Slice("PunyWorld", 80, 416, 16, 16, 16f / 3f);
+            var housePosition = new Vector2(-5.5f, 2.65f);
+            var houseObject = MakeSprite(_yard, "Cottage Exterior", house, housePosition, 19);
+            houseObject.GetComponent<SpriteRenderer>().sortingOrder = 40 - Mathf.RoundToInt(housePosition.y * 4f);
+            MakeWall(_yard, housePosition + new Vector2(-1.35f, 0.1f), new Vector2(0.3f, 2.0f));
+            MakeWall(_yard, housePosition + new Vector2(1.35f, 0.1f), new Vector2(0.3f, 2.0f));
+            MakeWall(_yard, housePosition + new Vector2(0f, 1.25f), new Vector2(2.4f, 0.3f));
+            MakeWall(_yard, housePosition + new Vector2(-0.85f, -1.25f), new Vector2(0.7f, 0.3f));
+            MakeWall(_yard, housePosition + new Vector2(0.85f, -1.25f), new Vector2(0.7f, 0.3f));
+            YardDoorPosition = housePosition + new Vector2(0f, -1.7f);
             MakeInteractable(_yard, "Cottage Door", StationKind.DoorIn, "Enter the cottage", YardDoorPosition);
 
-            // The tree silhouettes, garden containers, flowers and crop sprites are all source art.
-            var treeGreen = PixelArt.Slice("TinyTownAtlas", 64, 0, 16, 24);
-            var treeSmall = PixelArt.Slice("TinyTownAtlas", 64, 24, 16, 24);
-            var treeRound = PixelArt.Slice("TinyTownAtlas", 80, 0, 32, 32);
-            var treeGold = PixelArt.Slice("TinyTownAtlas", 48, 0, 16, 24);
-            MakeTree(treeGreen, new Vector2(-10, 4.8f));
-            MakeTree(treeRound, new Vector2(-8.4f, -1.7f));
-            MakeTree(treeGold, new Vector2(10.8f, 5.1f));
-            MakeTree(treeSmall, new Vector2(11.1f, -3.0f));
-            MakeTree(treeRound, new Vector2(9.5f, 7.4f));
+            // Full tree clusters from Puny World frame the yard without exposing
+            // the cut-up pieces that were visible in the first build.
+            var treeCluster = PixelArt.Slice("PunyWorld", 0, 112, 48, 48);
+            MakeTree(treeCluster, new Vector2(-9.3f, 2.4f));
+            MakeTree(treeCluster, new Vector2(-9.3f, -2.3f));
+            MakeTree(treeCluster, new Vector2(9.3f, 2.4f));
+            MakeTree(treeCluster, new Vector2(10.0f, -2.3f));
 
-            // A small starting garden with three open beds and three purchasable beds.
-            var bed = PixelArt.Slice("TinyFarmAtlas", 0, 64, 32, 16);
+            // Kenney's full raised-bed sprite is 32x16 at (32,128) on Tiny Farm.
+            var bed = PixelArt.Slice("TinyFarmAtlas", 32, 128, 32, 16);
             Vector2[] bedLocations = {
-                new Vector2(2.4f, -2.2f), new Vector2(5.0f, -2.2f), new Vector2(7.6f, -2.2f),
-                new Vector2(2.4f, -5.0f), new Vector2(5.0f, -5.0f), new Vector2(7.6f, -5.0f)
+                new Vector2(2.0f, -2.7f), new Vector2(4.5f, -2.7f), new Vector2(7.0f, -2.7f),
+                new Vector2(2.0f, -4.9f), new Vector2(4.5f, -4.9f), new Vector2(7.0f, -4.9f)
             };
             _plotVisuals.Clear();
             for (int i = 0; i < bedLocations.Length; i++)
             {
                 var plotRoot = new GameObject("Garden Bed " + (i + 1)); plotRoot.transform.SetParent(_yard, false); plotRoot.transform.position = bedLocations[i];
                 var bedSprite = plotRoot.AddComponent<SpriteRenderer>(); bedSprite.sprite = bed; bedSprite.sortingOrder = 40 - Mathf.RoundToInt(bedLocations[i].y * 4f);
-                var bedCollider = plotRoot.AddComponent<BoxCollider2D>(); bedCollider.size = new Vector2(1.6f, 0.36f); bedCollider.offset = new Vector2(0, -0.22f);
-                var plant = new GameObject("Growing Plant"); plant.transform.SetParent(plotRoot.transform, false); plant.transform.localPosition = new Vector3(0, 0.42f, 0);
+                var bedCollider = plotRoot.AddComponent<BoxCollider2D>(); bedCollider.size = new Vector2(1.75f, 0.38f); bedCollider.offset = new Vector2(0, -0.25f);
+                var plant = new GameObject("Growing Plant"); plant.transform.SetParent(plotRoot.transform, false); plant.transform.localPosition = new Vector3(0, 0.55f, 0);
                 var plantRenderer = plant.AddComponent<SpriteRenderer>(); plantRenderer.sortingOrder = 2;
                 var plotVisual = plotRoot.AddComponent<PlotVisual>(); plotVisual.PlotIndex = i; plotVisual.PlantRenderer = plantRenderer;
                 var interact = plotRoot.AddComponent<WorldInteractable>(); interact.Kind = StationKind.Planting; interact.PlotIndex = i; interact.Label = "Garden bed " + (i + 1);
                 _plotVisuals.Add(plotVisual);
             }
 
-            var board = PixelArt.Slice("TinyTownAtlas", 176, 80, 16, 32);
-            MakeStationWithSprite(_yard, "Order Board", board, StationKind.OrderBoard, "Check customer orders", new Vector2(-0.5f, 0.8f));
-            var vendor = new GameObject("Visiting Trader"); vendor.transform.SetParent(_yard, false); vendor.transform.position = new Vector3(10.4f, 2.0f, 0);
-            var vendorSprite = vendor.AddComponent<SpriteRenderer>(); vendorSprite.sprite = PixelArt.GrannyFrame(0, 0); vendorSprite.sortingOrder = 40 - Mathf.RoundToInt(vendor.transform.position.y * 4f);
+            var board = PixelArt.Slice("PunyWorld", 16, 480, 16, 16, 8f);
+            MakeStationWithSprite(_yard, "Order Board", board, StationKind.OrderBoard, "Check customer orders", new Vector2(0f, 1.2f));
+            var stall = PixelArt.Slice("PunyWorld", 144, 496, 16, 16, 8f);
+            MakeSprite(_yard, "Traveling trader's stall", stall, new Vector2(7.4f, 0.4f), 15);
+            var vendor = new GameObject("Visiting Trader"); vendor.transform.SetParent(_yard, false); vendor.transform.position = new Vector3(7.4f, 1.75f, 0);
+            var vendorSprite = vendor.AddComponent<SpriteRenderer>(); vendorSprite.sprite = PixelArt.CharacterFrame("PunyMerchant", 0, false, 1); vendorSprite.sortingOrder = 40 - Mathf.RoundToInt(vendor.transform.position.y * 4f);
             var vendorCollider = vendor.AddComponent<CircleCollider2D>(); vendorCollider.radius = 0.3f; vendorCollider.offset = new Vector2(0, -0.15f);
-            var bob = vendor.AddComponent<IdlePixelAnimation>(); bob.Target = vendorSprite;
+            var bob = vendor.AddComponent<IdlePixelAnimation>(); bob.Target = vendorSprite; bob.CharacterSheet = "PunyMerchant"; bob.FacingDirection = 0;
             var trader = vendor.AddComponent<WorldInteractable>(); trader.Kind = StationKind.Trader; trader.Label = "Trade with the traveling merchant";
-            AddBounds(_yard, -13f, 13f, -9f, 9f, 0.7f);
+            AddBounds(_yard, -11f, 11f, -7f, 7f, 0.7f);
             RefreshPlots();
         }
 
@@ -101,33 +118,30 @@ namespace CottageMagic
             var room = PixelArt.Slice("GrannyIndoor", 0, 0, 224, 224);
             MakeSprite(_home, "Warm cottage interior", room, Vector2.zero, -20);
 
-            // Existing furniture from the CC0 interior sheet gives the little home its fireplace,
-            // clock and window. Crafting props use the matching farm pack's tables and containers.
-            var fireplace = PixelArt.Slice("GrannyIndoor", 0, 256, 64, 32);
-            var clock = PixelArt.Slice("GrannyIndoor", 32, 224, 24, 48);
+            // The CC0 interior sheet supplies the fireplace, clock, window,
+            // door and the small furnishings used as the crafting stations.
+            var fireplace = PixelArt.Slice("GrannyIndoor", 0, 256, 96, 48);
+            var clock = PixelArt.Slice("GrannyIndoor", 32, 224, 32, 32);
             var window = PixelArt.Slice("GrannyIndoor", 64, 224, 32, 32);
-            var wallArt = PixelArt.Slice("GrannyIndoor", 0, 224, 32, 16);
             var insideDoor = PixelArt.Slice("GrannyIndoor", 96, 224, 32, 64);
             var bluePot = PixelArt.Slice("GrannyIndoor", 128, 224, 48, 32);
-            var workTable = PixelArt.Slice("TinyFarmAtlas", 32, 128, 32, 16);
-            var magicCabinet = PixelArt.Slice("TinyFarmAtlas", 64, 128, 32, 16);
+            var workTable = PixelArt.Slice("GrannyIndoor", 0, 240, 32, 16);
+            var magicCabinet = PixelArt.Slice("GrannyIndoor", 128, 224, 48, 32);
 
             MakeStationWithSprite(_home, "Potion Hearth", fireplace, StationKind.Potion, "Brew a potion", new Vector2(-3.4f, 2.2f), 1);
             MakeStationWithSprite(_home, "Scroll Desk", workTable, StationKind.Scroll, "Make scrolls and ink", new Vector2(2.5f, 1.7f), 1);
             MakeStationWithSprite(_home, "Enchantment Cabinet", magicCabinet, StationKind.Enchant, "Enchant a blade", new Vector2(2.8f, -1.4f), 1);
             MakeStationWithSprite(_home, "Resting Clock", clock, StationKind.Rest, "Rest until morning", new Vector2(-4.3f, -2.3f), 1);
             MakeSprite(_home, "Window", window, new Vector2(3.7f, 4.0f), -5);
-            MakeSprite(_home, "Framed cottage painting", wallArt, new Vector2(-0.1f, 5.4f), -5);
             MakeSprite(_home, "Interior cottage door", insideDoor, new Vector2(0, -4.8f), -6);
             MakeSprite(_home, "Blue Flower Pot", bluePot, new Vector2(4.3f, 3.4f), -4);
             MakeInteractable(_home, "Back Door", StationKind.DoorOut, "Go out to the garden", new Vector2(0, -3.75f));
             AddBounds(_home, -6.0f, 6.0f, -6.0f, 6.0f, 0.7f);
         }
 
-        private void AddGroundCell(Sprite tile, int x, int y)
+        private void AddPathCell(Sprite tile, int x, int y)
         {
-            if (tile == null) return;
-            MakeSprite(_yard, "Garden Path", tile, new Vector2(x, y), -25);
+            MakeSprite(_yard, "Garden path tile", tile, new Vector2(x, y), -25);
         }
 
         private GameObject MakeSprite(Transform parent, string name, Sprite sprite, Vector2 position, int sortingOrder)

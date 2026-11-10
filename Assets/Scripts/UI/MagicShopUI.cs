@@ -21,7 +21,8 @@ namespace CottageMagic
         private float _toastUntil;
         private bool _stylesReady;
         private Font _font;
-        private GUIStyle _panelStyle, _titleStyle, _textStyle, _smallStyle, _buttonStyle, _slotStyle, _cardStyle;
+        private GUIStyle _panelStyle, _hudStyle, _titleStyle, _textStyle, _smallStyle, _buttonStyle, _slotStyle, _cardStyle;
+        private Texture2D _dialogTexture, _panelTexture, _cardTexture, _buttonTexture, _buttonHoverTexture;
         private MagicShopDirector Game => MagicShopDirector.Instance;
         public bool BlocksWorldInput => _panel != Panel.None;
 
@@ -57,13 +58,49 @@ namespace CottageMagic
         {
             if (_stylesReady) return;
             _stylesReady = true;
+            _dialogTexture = Resources.Load<Texture2D>("Art/PixelUI_Dialog");
+            _panelTexture = Resources.Load<Texture2D>("Art/PixelUI_Panel");
+            _cardTexture = Resources.Load<Texture2D>("Art/PixelUI_Card");
+            _buttonTexture = Resources.Load<Texture2D>("Art/PixelUI_Button");
+            _buttonHoverTexture = Resources.Load<Texture2D>("Art/PixelUI_ButtonHover");
+
+            Color ink = new Color32(71, 51, 35, 255);
+            Color mutedInk = new Color32(104, 91, 67, 255);
+            Color paper = new Color32(250, 235, 197, 255);
             _panelStyle = new GUIStyle(GUI.skin.box) { padding = new RectOffset(22, 22, 18, 18), alignment = TextAnchor.UpperLeft };
-            _titleStyle = new GUIStyle(GUI.skin.label) { fontSize = 23, fontStyle = FontStyle.Bold, normal = { textColor = new Color(0.99f, 0.89f, 0.65f) }, wordWrap = true };
-            _textStyle = new GUIStyle(GUI.skin.label) { fontSize = 15, normal = { textColor = new Color(0.96f, 0.92f, 0.78f) }, wordWrap = true, richText = true };
-            _smallStyle = new GUIStyle(_textStyle) { fontSize = 12, normal = { textColor = new Color(0.81f, 0.85f, 0.73f) } };
+            _panelStyle.normal.background = _dialogTexture != null ? _dialogTexture : GUI.skin.box.normal.background;
+            _panelStyle.border = new RectOffset(6, 6, 6, 6);
+            _hudStyle = new GUIStyle(GUI.skin.box) { padding = new RectOffset(10, 10, 8, 8), alignment = TextAnchor.UpperLeft };
+            _hudStyle.normal.background = _panelTexture != null ? _panelTexture : GUI.skin.box.normal.background;
+            _hudStyle.border = new RectOffset(5, 5, 5, 5);
+
+            _titleStyle = new GUIStyle(GUI.skin.label) { fontSize = 23, fontStyle = FontStyle.Bold, wordWrap = true };
+            _titleStyle.normal.textColor = ink;
+            _textStyle = new GUIStyle(GUI.skin.label) { fontSize = 15, wordWrap = true, richText = true };
+            _textStyle.normal.textColor = ink;
+            _smallStyle = new GUIStyle(_textStyle) { fontSize = 12 };
+            _smallStyle.normal.textColor = mutedInk;
+
             _buttonStyle = new GUIStyle(GUI.skin.button) { fontSize = 14, padding = new RectOffset(10, 10, 7, 7), wordWrap = true, alignment = TextAnchor.MiddleCenter };
-            _slotStyle = new GUIStyle(GUI.skin.box) { fontSize = 13, padding = new RectOffset(8, 8, 10, 10), alignment = TextAnchor.MiddleCenter, wordWrap = true, normal = { textColor = new Color(0.98f, 0.91f, 0.74f) } };
+            _buttonStyle.normal.background = _buttonTexture != null ? _buttonTexture : GUI.skin.button.normal.background;
+            _buttonStyle.hover.background = _buttonHoverTexture != null ? _buttonHoverTexture : _buttonStyle.normal.background;
+            _buttonStyle.active.background = _buttonHoverTexture != null ? _buttonHoverTexture : _buttonStyle.normal.background;
+            _buttonStyle.focused.background = _buttonHoverTexture != null ? _buttonHoverTexture : _buttonStyle.normal.background;
+            _buttonStyle.disabled.background = _buttonTexture != null ? _buttonTexture : _buttonStyle.normal.background;
+            _buttonStyle.normal.textColor = paper;
+            _buttonStyle.hover.textColor = ink;
+            _buttonStyle.active.textColor = ink;
+            _buttonStyle.focused.textColor = ink;
+            _buttonStyle.disabled.textColor = mutedInk;
+            _buttonStyle.border = new RectOffset(5, 5, 5, 5);
+
+            _slotStyle = new GUIStyle(GUI.skin.box) { fontSize = 13, padding = new RectOffset(8, 8, 10, 10), alignment = TextAnchor.MiddleCenter, wordWrap = true };
+            _slotStyle.normal.background = _cardTexture != null ? _cardTexture : GUI.skin.box.normal.background;
+            _slotStyle.normal.textColor = ink;
+            _slotStyle.border = new RectOffset(5, 5, 5, 5);
             _cardStyle = new GUIStyle(GUI.skin.box) { padding = new RectOffset(12, 12, 8, 8), alignment = TextAnchor.UpperLeft };
+            _cardStyle.normal.background = _cardTexture != null ? _cardTexture : GUI.skin.box.normal.background;
+            _cardStyle.border = new RectOffset(5, 5, 5, 5);
             if (_font != null)
             {
                 _titleStyle.font = _font; _textStyle.font = _font; _smallStyle.font = _font;
@@ -87,9 +124,8 @@ namespace CottageMagic
 
         private void DrawHud()
         {
-            GUI.color = new Color(0.13f, 0.18f, 0.14f, 0.92f);
-            GUI.Box(new Rect(20, 18, 408, 112), GUIContent.none, _panelStyle);
             GUI.color = Color.white;
+            GUI.Box(new Rect(20, 18, 408, 112), GUIContent.none, _hudStyle);
             GUILayout.BeginArea(new Rect(38, 28, 375, 96));
             GUILayout.Label(Game.ShopTier, _titleStyle);
             GUILayout.BeginHorizontal();
@@ -100,29 +136,22 @@ namespace CottageMagic
             GUILayout.EndArea();
 
             int activeOrders = Game.Orders.Count;
-            GUI.color = new Color(0.15f, 0.19f, 0.15f, 0.92f);
-            GUI.Box(new Rect(930, 18, 330, 80), GUIContent.none, _panelStyle);
-            GUI.color = Color.white;
+            GUI.Box(new Rect(930, 18, 330, 80), GUIContent.none, _hudStyle);
             GUILayout.BeginArea(new Rect(948, 26, 298, 62));
             GUILayout.Label("OPEN REQUESTS  " + activeOrders, _titleStyle);
             var soonest = Game.Orders.OrderBy(o => o.dueAt).FirstOrDefault();
             if (soonest != null) GUILayout.Label(soonest.request + " · " + DaysText(Game.GetOrderDaysLeft(soonest)) + " left", _smallStyle);
             GUILayout.EndArea();
 
-            GUI.color = new Color(0.17f, 0.20f, 0.16f, 0.88f);
-            GUI.Box(new Rect(900, 636, 360, 60), GUIContent.none, GUI.skin.box);
-            GUI.color = Color.white;
-            GUILayout.BeginArea(new Rect(918, 644, 328, 46));
-            GUILayout.Label("WASD / arrows move   ·   E use   ·   I bag   ·   J requests", _smallStyle);
-            GUILayout.Label("Mouse-click the menus   ·   Esc closes", _smallStyle);
+            GUI.Box(new Rect(818, 680, 442, 28), GUIContent.none, _hudStyle);
+            GUILayout.BeginArea(new Rect(831, 683, 416, 22));
+            GUILayout.Label("WASD MOVE   ·   E USE   ·   I SATCHEL   ·   J LEDGER", _smallStyle);
             GUILayout.EndArea();
 
             if (Game.Player != null && !string.IsNullOrEmpty(Game.Player.Prompt))
             {
-                GUI.color = new Color(0.13f, 0.17f, 0.14f, 0.94f);
-                GUI.Box(new Rect(460, 635, 360, 48), GUIContent.none, GUI.skin.box);
-                GUI.color = Color.white;
-                GUI.Label(new Rect(474, 646, 335, 27), Game.Player.Prompt, _textStyle);
+                GUI.Box(new Rect(410, 650, 450, 48), GUIContent.none, _hudStyle);
+                GUI.Label(new Rect(428, 660, 414, 28), Game.Player.Prompt, _textStyle);
             }
         }
 
@@ -135,8 +164,8 @@ namespace CottageMagic
 
         private void DrawToast()
         {
-            GUI.color = new Color(0.16f, 0.22f, 0.16f, 0.96f);
-            GUI.Box(new Rect(335, 545, 610, 70), GUIContent.none, GUI.skin.box);
+            GUI.color = Color.white;
+            GUI.Box(new Rect(335, 545, 610, 70), GUIContent.none, _hudStyle);
             GUI.color = Color.white;
             GUI.Label(new Rect(355, 555, 570, 52), _toast, _textStyle);
         }
@@ -146,7 +175,7 @@ namespace CottageMagic
             GUI.color = new Color(0.09f, 0.13f, 0.11f, 0.68f);
             GUI.DrawTexture(new Rect(0, 0, 1280, 720), Texture2D.whiteTexture);
             GUI.color = Color.white;
-            GUI.color = new Color(0.18f, 0.22f, 0.17f, 0.99f);
+            GUI.color = Color.white;
             GUI.Box(new Rect(300, 74, 680, 572), GUIContent.none, _panelStyle);
             GUI.color = Color.white;
             GUILayout.BeginArea(new Rect(326, 92, 628, 532));

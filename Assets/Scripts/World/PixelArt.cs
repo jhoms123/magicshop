@@ -37,6 +37,15 @@ namespace CottageMagic
             return Slice("base_male", column * 48, row * 64, 48, 64, 48f);
         }
 
+        // Shade's CC0 Puny Characters sheet has three 32x32 frames for each of
+        // eight directions. Row 0 is idle and row 1 is walking.
+        public static Sprite CharacterFrame(string sheet, int direction, bool walking, int frame)
+        {
+            int column = Mathf.Clamp(direction, 0, 7) * 3 + Mathf.Clamp(frame, 0, 2);
+            int row = walking ? 1 : 0;
+            return Slice(sheet, column * 32, row * 32, 32, 32, 16f);
+        }
+
         public static Sprite GrannyFrame(int column, int row)
         {
             return Slice("GrannySprite", column * 32, row * 32, 32, 32, 24f);
