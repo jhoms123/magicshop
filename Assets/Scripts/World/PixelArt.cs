@@ -74,5 +74,17 @@ namespace CottageMagic
         {
             return Slice("GrannySprite", column * 32, row * 32, 32, 32, 24f);
         }
+
+        // The reference game's character sheet has four facing rows and two
+        // walking frames per row. The sprites were trimmed into a small,
+        // purpose-built atlas so the character uses the same 16px scale as
+        // the crops and soil tiles.
+        public static Sprite SproutCharacterFrame(int direction, bool walking, int frame)
+        {
+            int row = Mathf.Clamp(direction, 0, 3);
+            int column = walking ? Mathf.Clamp(frame, 0, 1) : 0;
+            return Slice("MagicFarm/People", column * 16, row * 16, 16, 16,
+                PixelsPerUnit, new Vector2(0.5f, 0f));
+        }
     }
 }

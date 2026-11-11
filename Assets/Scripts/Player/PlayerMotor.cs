@@ -40,7 +40,7 @@ namespace CottageMagic
             _spriteRoot = spriteObject.transform;
             _spriteRoot.SetParent(transform, false);
             _sprite = spriteObject.AddComponent<SpriteRenderer>();
-            _sprite.sprite = PixelArt.CharacterFrame("PunyPlayer", _direction, false, 1);
+            _sprite.sprite = PixelArt.SproutCharacterFrame(_direction, false, 0);
             _sprite.sortingOrder = 40;
         }
 
@@ -126,22 +126,26 @@ namespace CottageMagic
 
         private void Animate(bool walking)
         {
-            float angle = Mathf.Atan2(_lastMove.y, _lastMove.x) * Mathf.Rad2Deg;
-            _direction = (Mathf.RoundToInt((angle + 90f) / 45f) % 8 + 8) % 8;
+            // Keep the existing normalized 8-way movement while facing the
+            // nearest cardinal direction supported by the reference sheet.
+            if (Mathf.Abs(_lastMove.y) >= Mathf.Abs(_lastMove.x))
+                _direction = _lastMove.y >= 0f ? 1 : 0;
+            else
+                _direction = _lastMove.x < 0f ? 2 : 3;
 
             if (!walking)
             {
-                _frame = 1;
-                _sprite.sprite = PixelArt.CharacterFrame("PunyPlayer", _direction, false, _frame);
+                _frame = 0;
+                _sprite.sprite = PixelArt.SproutCharacterFrame(_direction, false, _frame);
                 return;
             }
             _animationTimer += Time.deltaTime;
             if (_animationTimer >= 0.12f)
             {
                 _animationTimer -= 0.12f;
-                _frame = (_frame + 1) % 3;
+                _frame = (_frame + 1) % 2;
             }
-            _sprite.sprite = PixelArt.CharacterFrame("PunyPlayer", _direction, true, _frame);
+            _sprite.sprite = PixelArt.SproutCharacterFrame(_direction, true, _frame);
         }
     }
 }

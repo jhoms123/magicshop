@@ -76,19 +76,19 @@ namespace CottageMagic
             gridObject.AddComponent<Grid>().cellSize = Vector3.one;
 
             var grassMap = CreateTilemap(gridObject.transform, "Grass Ground", -30);
-            var pathMap = CreateTilemap(gridObject.transform, "Sand Paths", -25);
-            var grassSprite = PixelArt.Slice("PunyWorld", 0, 0, 16, 16);
-            var sandSprite = PixelArt.Slice("TinyTownAtlas", 16, 32, 16, 16);
-            var grass = MakeTile("Flat Grass", grassSprite);
-            var sand = MakeTile("Clean Sand Path", sandSprite);
+            var pathMap = CreateTilemap(gridObject.transform, "Tilled Earth Paths", -25);
+            var grassSprite = PixelArt.Slice("MagicFarm/Ground", 0, 0, 16, 16);
+            var soilSprite = PixelArt.Slice("MagicFarm/Ground", 16, 0, 16, 16);
+            var grass = MakeTile("Sprout Lands Grass", grassSprite);
+            var soilPath = MakeTile("Tilled Earth Path", soilSprite);
 
             for (int x = -10; x <= 10; x++)
             for (int y = -6; y <= 6; y++)
                 grassMap.SetTile(new Vector3Int(x, y, 0), grass);
 
-            for (int y = -4; y <= 2; y++) pathMap.SetTile(new Vector3Int(0, y, 0), sand);
-            for (int x = -3; x <= 0; x++) pathMap.SetTile(new Vector3Int(x, -1, 0), sand);
-            for (int x = 0; x <= 6; x++) pathMap.SetTile(new Vector3Int(x, 1, 0), sand);
+            for (int y = -4; y <= 2; y++) pathMap.SetTile(new Vector3Int(0, y, 0), soilPath);
+            for (int x = -3; x <= 0; x++) pathMap.SetTile(new Vector3Int(x, -1, 0), soilPath);
+            for (int x = 0; x <= 6; x++) pathMap.SetTile(new Vector3Int(x, 1, 0), soilPath);
             grassMap.CompressBounds();
             pathMap.CompressBounds();
         }
@@ -141,27 +141,33 @@ namespace CottageMagic
         {
             var forest = new[]
             {
-                PixelArt.Slice("PunyWorld", 0, 112, 48, 48),
-                PixelArt.Slice("PunyWorld", 48, 112, 48, 48),
-                PixelArt.Slice("PunyWorld", 96, 112, 48, 48)
+                PixelArt.Slice("MagicFarm/Nature", 0, 0, 16, 32, PixelArt.PixelsPerUnit, new Vector2(0.5f, 0f)),
+                PixelArt.Slice("MagicFarm/Nature", 16, 0, 32, 32, PixelArt.PixelsPerUnit, new Vector2(0.5f, 0f)),
+                PixelArt.Slice("MagicFarm/Nature", 48, 0, 32, 32, PixelArt.PixelsPerUnit, new Vector2(0.5f, 0f))
             };
 
             int variant = 0;
-            float[] topTrees = { -7.5f, -4.5f, -1.5f, 1.5f, 4.5f, 7.5f };
+            // Leave the upper-right clearing open for the trader's stall.
+            float[] topTrees = { -8.4f, -6.8f, -5.2f, -3.6f, -2.0f, -0.4f, 1.2f, 2.8f, 4.4f };
             for (int i = 0; i < topTrees.Length; i++)
-                MakeForestPatch(forest[variant++ % forest.Length], new Vector2(topTrees[i], 5.25f));
+                MakeForestPatch(forest[variant++ % forest.Length], new Vector2(topTrees[i], 3.55f));
 
-            float[] sideY = { 2.1f, -1.25f, -4.3f };
+            float[] sideY = { 3.4f, 1.4f, -0.6f, -2.6f, -4.6f };
             for (int i = 0; i < sideY.Length; i++)
             {
-                MakeForestPatch(forest[variant++ % forest.Length], new Vector2(-9.4f, sideY[i]));
-                MakeForestPatch(forest[variant++ % forest.Length], new Vector2(9.4f, sideY[i]));
+                MakeForestPatch(forest[variant++ % forest.Length], new Vector2(-8.8f, sideY[i]));
+                MakeForestPatch(forest[variant++ % forest.Length], new Vector2(8.8f, sideY[i]));
             }
 
-            MakeForestPatch(forest[variant++ % forest.Length], new Vector2(-7.5f, -5.7f));
-            MakeForestPatch(forest[variant++ % forest.Length], new Vector2(-4.5f, -5.7f));
-            MakeForestPatch(forest[variant++ % forest.Length], new Vector2(4.5f, -5.7f));
-            MakeForestPatch(forest[variant % forest.Length], new Vector2(7.5f, -5.7f));
+            var bottomTrees = new[]
+            {
+                PixelArt.Slice("MagicFarm/Nature", 0, 0, 16, 32),
+                PixelArt.Slice("MagicFarm/Nature", 16, 0, 32, 32),
+                PixelArt.Slice("MagicFarm/Nature", 48, 0, 32, 32)
+            };
+            float[] bottomTreeX = { -8.4f, -6.8f, -5.2f, -3.6f, -2.0f, 2.0f, 3.6f, 5.2f, 6.8f, 8.4f };
+            for (int i = 0; i < bottomTreeX.Length; i++)
+                MakeForestPatch(bottomTrees[i % bottomTrees.Length], new Vector2(bottomTreeX[i], -5.7f));
         }
 
         private void MakeForestPatch(Sprite sprite, Vector2 position)
@@ -171,7 +177,7 @@ namespace CottageMagic
 
         private void BuildGarden()
         {
-            var bed = PixelArt.Slice("TinyFarmAtlas", 0, 64, 48, 16);
+            var bed = PixelArt.Slice("MagicFarm/Ground", 0, 16, 48, 16);
             Vector2[] positions =
             {
                 new Vector2(3f, -0.45f), new Vector2(6.5f, -0.45f),
@@ -206,7 +212,7 @@ namespace CottageMagic
                 _plotVisuals.Add(plotVisual);
             }
 
-            var flower = PixelArt.Slice("TinyFarmAtlas", 176, 96, 16, 16);
+            var flower = PixelArt.Slice("MagicFarm/Nature", 80, 0, 16, 16);
             MakeSprite(_yard, "Garden flower", flower, new Vector2(-2.65f, 0.15f), SortOrder(0.15f));
             MakeSprite(_yard, "Garden flower", flower, new Vector2(2.0f, -3.8f), SortOrder(-3.8f));
             MakeSprite(_yard, "Garden flower", flower, new Vector2(7.85f, -3.8f), SortOrder(-3.8f));
@@ -216,17 +222,14 @@ namespace CottageMagic
 
         private void BuildTradeBox()
         {
-            // The previous y=160 crop exceeded the 128px atlas height.
-            // This uses the bottommost valid 16x16 cell; verify its artwork
-            // against TinyFarmAtlas if a specific chest tile is required.
-            var chest = PixelArt.Slice("TinyFarmAtlas", 64, 96, 16, 16);
+            var chest = PixelArt.Slice("MagicFarm/Furniture", 0, 0, 16, 14);
             MakeStationWithSprite(_yard, "Trade and Request Box", chest, StationKind.OrderBoard,
                 "Open the trade and request box", new Vector2(-3.0f, -1.0f));
         }
 
         private void BuildTrailEnd()
         {
-            var fence = PixelArt.Slice("TinyTownAtlas", 128, 96, 48, 16);
+            var fence = PixelArt.Slice("MagicFarm/Furniture", 0, 16, 48, 16);
             var fenceObject = MakeSprite(_yard, "End of the Forest Trail", fence, new Vector2(0, -4.62f), SortOrder(-4.62f));
             var fenceCollider = fenceObject.AddComponent<BoxCollider2D>();
             fenceCollider.size = new Vector2(2.95f, 0.22f);
@@ -241,39 +244,49 @@ namespace CottageMagic
         {
             _traderVisit = new GameObject("Visiting Trader Stop").transform;
             _traderVisit.SetParent(_yard, false);
-            var stall = PixelArt.Slice("PunyWorld", 64, 496, 32, 16);
-            var stallObject = MakeSprite(_traderVisit, "Merchant's Wooden Stall", stall, new Vector2(6.125f, 1.875f), SortOrder(1.875f));
-            stallObject.GetComponent<SpriteRenderer>().sortingOrder = SortOrder(1.375f);
+            var table = PixelArt.Slice("MagicFarm/Furniture", 16, 0, 16, 16);
+            Vector2 counterCenter = new Vector2(6.125f, 1.875f);
+            var counter = new GameObject("Potion Merchant's Counter");
+            counter.transform.SetParent(_traderVisit, false);
+            counter.transform.position = counterCenter;
+            var counterCollider = counter.AddComponent<BoxCollider2D>();
+            counterCollider.size = new Vector2(2.95f, 0.25f);
+            counterCollider.offset = new Vector2(0f, -0.32f);
 
-            // y=128 was outside the 128px-high TinyTownAtlas. Use y=112,
-            // the last valid row for a 16x16 crop.
-            var blueBottle = PixelArt.Slice("TinyFarmAtlas", 16, 96, 16, 16, PixelArt.PixelsPerUnit * 2f, new Vector2(0.5f, 0f));
-            var clayPot = PixelArt.Slice("TinyFarmAtlas", 48, 96, 16, 16, PixelArt.PixelsPerUnit * 2f, new Vector2(0.5f, 0f));
-            MakeSprite(_traderVisit, "Blue Bottle for Sale", blueBottle, new Vector2(5.65f, 2.375f), SortOrder(1.0f));
-            MakeSprite(_traderVisit, "Clay Pot for Sale", clayPot, new Vector2(6.6f, 2.375f), SortOrder(1.0f));
-            var marketSign = PixelArt.Slice("TinyTownAtlas", 176, 96, 16, 16);
-            MakeSprite(_traderVisit, "Trader's Market Sign", marketSign, new Vector2(7.4375f, 2.625f), SortOrder(2.625f));
+            // Three real wooden tables make a counter wide enough for the
+            // products, while each retains its own y-sorted sprite.
+            for (int i = -1; i <= 1; i++)
+                MakeSprite(_traderVisit, "Market Table", table,
+                    counterCenter + new Vector2(i, 0f), SortOrder(1.375f));
+
+            var cauldron = PixelArt.Slice("MagicFarm/WitchProps", 0, 0, 64, 64,
+                48f, new Vector2(0.5f, 0f));
+            var bottles = PixelArt.Slice("MagicFarm/WitchProps", 64, 0, 64, 64,
+                48f, new Vector2(0.5f, 0f));
+            var herbs = PixelArt.Slice("MagicFarm/WitchProps", 128, 0, 64, 64,
+                48f, new Vector2(0.5f, 0f));
+            MakeSprite(_traderVisit, "Bubbling Cauldron Display", cauldron,
+                new Vector2(5.1f, 2.375f), SortOrder(2.375f));
+            MakeSprite(_traderVisit, "Potion Bottle Display", bottles,
+                new Vector2(6.35f, 2.375f), SortOrder(2.375f));
+            MakeSprite(_traderVisit, "Dried Herb Display", herbs,
+                new Vector2(7.3f, 2.375f), SortOrder(2.375f));
 
             var merchant = new GameObject("Traveling Trader");
             merchant.transform.SetParent(_traderVisit, false);
-            merchant.transform.localPosition = new Vector3(6.125f, 2.0625f, 0);
+            merchant.transform.localPosition = new Vector3(6.125f, 2.9f, 0);
             var merchantSprite = merchant.AddComponent<SpriteRenderer>();
-            merchantSprite.sprite = PixelArt.CharacterFrame("PunyMerchant", 0, false, 1);
+            merchantSprite.sprite = PixelArt.Slice("MagicFarm/WitchFox", 0, 0, 64, 64,
+                48f, new Vector2(0.5f, 0f));
             merchantSprite.sortingOrder = SortOrder(merchant.transform.position.y);
             var collider = merchant.AddComponent<CircleCollider2D>();
             collider.radius = 0.3f;
             collider.offset = new Vector2(0, 0.16f);
             var animation = merchant.AddComponent<IdlePixelAnimation>();
             animation.Target = merchantSprite;
-            animation.CharacterSheet = "PunyMerchant";
-            animation.FacingDirection = 0;
             var interact = merchant.AddComponent<WorldInteractable>();
             interact.Kind = StationKind.Trader;
             interact.Label = "Trade with the visiting merchant";
-
-            var stallCollider = stallObject.AddComponent<BoxCollider2D>();
-            stallCollider.size = new Vector2(1.8f, 0.25f);
-            stallCollider.offset = new Vector2(0, -0.32f);
         }
 
         private void BuildHome()
@@ -281,29 +294,32 @@ namespace CottageMagic
             var room = PixelArt.Slice("GrannyIndoor", 0, 0, 224, 224);
             MakeSprite(_home, "Warm cottage room", room, Vector2.zero, -20);
 
-            var fireplace = PixelArt.Slice("GrannyIndoor", 0, 272, 64, 20);
             var clock = PixelArt.Slice("GrannyIndoor", 32, 224, 32, 32);
             var window = PixelArt.Slice("GrannyIndoor", 64, 224, 32, 32);
             var insideDoor = PixelArt.Slice("GrannyIndoor", 96, 224, 32, 64);
             var pottedPlant = PixelArt.Slice("GrannyIndoor", 0, 240, 32, 16);
-            var vase = PixelArt.Slice("GrannyIndoor", 128, 240, 32, 16, PixelArt.PixelsPerUnit, new Vector2(0.5f, 0f));
-            var scrollDesk = PixelArt.Slice("PunyWorld", 64, 496, 32, 16);
-            var enchantDesk = PixelArt.Slice("PunyWorld", 112, 496, 32, 16);
-            // Same out-of-bounds chest coordinate as the yard trade box.
-            var chest = PixelArt.Slice("TinyFarmAtlas", 64, 96, 16, 16);
-            var stool = PixelArt.Slice("PunyWorld", 128, 480, 16, 16);
+            var cauldron = PixelArt.Slice("MagicFarm/WitchProps", 0, 0, 64, 64,
+                48f, new Vector2(0.5f, 0f));
+            var potionShelf = PixelArt.Slice("MagicFarm/WitchProps", 64, 0, 64, 64,
+                48f, new Vector2(0.5f, 0f));
+            var driedHerbs = PixelArt.Slice("MagicFarm/WitchProps", 128, 0, 64, 64,
+                48f, new Vector2(0.5f, 0f));
+            var workTable = PixelArt.Slice("MagicFarm/Furniture", 16, 0, 16, 16);
+            var chest = PixelArt.Slice("MagicFarm/Furniture", 0, 0, 16, 14);
+            var stool = PixelArt.Slice("MagicFarm/Furniture", 32, 0, 16, 16);
 
-            MakeStationWithSprite(_home, "Potion Hearth", fireplace, StationKind.Potion,
-                "Brew a potion", new Vector2(-1.0f, 3.25f));
-            var scrollTable = MakeStationWithSprite(_home, "Scroll Writing Table", scrollDesk, StationKind.Scroll,
+            MakeStationWithSprite(_home, "Bubbling Potion Cauldron", cauldron, StationKind.Potion,
+                "Brew a potion", new Vector2(-3.05f, 2.15f));
+            MakeSprite(_home, "Potion Bottle Shelf", potionShelf,
+                new Vector2(-1.7f, 3.35f), SortOrder(3.35f));
+            MakeSprite(_home, "Hanging Dried Herbs", driedHerbs,
+                new Vector2(-4.05f, 3.25f), SortOrder(3.25f));
+
+            MakeStationWithSprite(_home, "Scroll Writing Table", workTable, StationKind.Scroll,
                 "Write scrolls and distill ink", new Vector2(-1.55f, 0.85f));
-            var scrollTableTop = scrollTable.transform.position.y + scrollDesk.bounds.size.y * 0.5f;
-            MakeSprite(_home, "Scroll Desk Vase", vase, new Vector2(-1.55f, scrollTableTop), SortOrder(scrollTable.transform.position.y) + 2);
             MakeSprite(_home, "Scroll Desk Stool", stool, new Vector2(-1.55f, -0.05f), SortOrder(-0.05f));
-            var enchantTable = MakeStationWithSprite(_home, "Enchantment Table", enchantDesk, StationKind.Enchant,
+            MakeStationWithSprite(_home, "Enchantment Table", workTable, StationKind.Enchant,
                 "Enchant a blade", new Vector2(1.65f, -1.25f));
-            var enchantTableTop = enchantTable.transform.position.y + enchantDesk.bounds.size.y * 0.5f;
-            MakeSprite(_home, "Enchantment Desk Vase", vase, new Vector2(1.65f, enchantTableTop), SortOrder(enchantTable.transform.position.y) + 2);
             MakeSprite(_home, "Enchantment Desk Stool", stool, new Vector2(1.65f, -2.15f), SortOrder(-2.15f));
             MakeStationWithSprite(_home, "Wall Clock", clock, StationKind.Rest,
                 "Rest until morning", new Vector2(1.45f, 2.45f));
