@@ -103,12 +103,10 @@ namespace CottageMagic
             _buttonStyle.hover.background = _buttonHoverTexture != null ? _buttonHoverTexture : _buttonStyle.normal.background;
             _buttonStyle.active.background = _buttonHoverTexture != null ? _buttonHoverTexture : _buttonStyle.normal.background;
             _buttonStyle.focused.background = _buttonHoverTexture != null ? _buttonHoverTexture : _buttonStyle.normal.background;
-            _buttonStyle.disabled.background = _buttonTexture != null ? _buttonTexture : _buttonStyle.normal.background;
             _buttonStyle.normal.textColor = paper;
             _buttonStyle.hover.textColor = ink;
             _buttonStyle.active.textColor = ink;
             _buttonStyle.focused.textColor = ink;
-            _buttonStyle.disabled.textColor = mutedInk;
             _buttonStyle.border = new RectOffset(5, 5, 5, 5);
 
             _slotStyle = new GUIStyle(GUI.skin.box) { fontSize = 13, padding = new RectOffset(8, 8, 10, 10), alignment = TextAnchor.MiddleCenter, wordWrap = true };

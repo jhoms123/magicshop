@@ -28,7 +28,9 @@
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",
-      "dependencies": {}
+      "dependencies": {
+        "com.unity.modules.physics2d": "1.0.0"
+      }
     }
   }
 }

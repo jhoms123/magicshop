@@ -63,7 +63,11 @@ namespace CottageMagic
         {
             int column = walking ? Mathf.Clamp(frame, 0, 2) : 1;
             int row = Mathf.Clamp(direction, 0, 7);
-            return Slice(sheet, column * 32 + 8, row * 32 + 2, 18, 26, PixelsPerUnit, new Vector2(8f / 18f, 4f / 26f));
+            // Slice the complete 32x32 frame. The sheet contains a few frames
+            // whose pixels extend beyond the old 18x26 trim rectangle.
+            // Keeping the full cell prevents hats, hands, and other details
+            // from being clipped. The low pivot keeps the character grounded.
+            return Slice(sheet, column * 32, row * 32, 32, 32, PixelsPerUnit, new Vector2(0.5f, 0.125f));
         }
 
         public static Sprite GrannyFrame(int column, int row)

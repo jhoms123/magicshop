@@ -72,8 +72,6 @@ namespace CottageMagic
         {
             var gridObject = new GameObject("Yard Tile Grid");
             gridObject.transform.SetParent(_yard, false);
-            // Place cell centers on integer world coordinates, matching the
-            // doorway, trade box, garden beds and the source-pixel snap grid.
             gridObject.transform.localPosition = new Vector3(-0.5f, -0.5f, 0f);
             gridObject.AddComponent<Grid>().cellSize = Vector3.one;
 
@@ -88,8 +86,6 @@ namespace CottageMagic
             for (int y = -6; y <= 6; y++)
                 grassMap.SetTile(new Vector3Int(x, y, 0), grass);
 
-            // The main lane starts at the cottage door, runs past the trade box,
-            // then visibly stops at a solid fence and trail sign.
             for (int y = -4; y <= 2; y++) pathMap.SetTile(new Vector3Int(0, y, 0), sand);
             for (int x = -3; x <= 0; x++) pathMap.SetTile(new Vector3Int(x, -1, 0), sand);
             for (int x = 0; x <= 6; x++) pathMap.SetTile(new Vector3Int(x, 1, 0), sand);
@@ -119,8 +115,6 @@ namespace CottageMagic
 
         private void BuildCottageExterior()
         {
-            // The full 63x52 cottage sprite replaces the oversized single-tile
-            // roof crop. Its real door sits 11 pixels right of its center.
             var house = PixelArt.Slice("CottageExterior", 0, 0, 63, 52);
             var housePosition = new Vector2(-0.6875f, 3.0f);
             MakeSprite(_yard, "Cottage Exterior", house, housePosition, SortOrder(housePosition.y));
@@ -153,8 +147,6 @@ namespace CottageMagic
             };
 
             int variant = 0;
-            // Place the forest as a continuous soft frame, with the larger
-            // middle opening reserved for the path and garden.
             float[] topTrees = { -7.5f, -4.5f, -1.5f, 1.5f, 4.5f, 7.5f };
             for (int i = 0; i < topTrees.Length; i++)
                 MakeForestPatch(forest[variant++ % forest.Length], new Vector2(topTrees[i], 5.25f));
@@ -166,7 +158,6 @@ namespace CottageMagic
                 MakeForestPatch(forest[variant++ % forest.Length], new Vector2(9.4f, sideY[i]));
             }
 
-            // The open center keeps the one-way forest trail legible.
             MakeForestPatch(forest[variant++ % forest.Length], new Vector2(-7.5f, -5.7f));
             MakeForestPatch(forest[variant++ % forest.Length], new Vector2(-4.5f, -5.7f));
             MakeForestPatch(forest[variant++ % forest.Length], new Vector2(4.5f, -5.7f));
@@ -180,8 +171,6 @@ namespace CottageMagic
 
         private void BuildGarden()
         {
-            // This is a full soil strip from the farming atlas, not the old
-            // furniture shelf crop that made the beds look like a cabinet.
             var bed = PixelArt.Slice("TinyFarmAtlas", 0, 64, 48, 16);
             Vector2[] positions =
             {
@@ -227,9 +216,10 @@ namespace CottageMagic
 
         private void BuildTradeBox()
         {
-            // A proper wood-bin crop from the farm atlas; the old coordinate
-            // selected a coin purse, which made the shipping point look wrong.
-            var chest = PixelArt.Slice("TinyFarmAtlas", 128, 160, 16, 16);
+            // The previous y=160 crop exceeded the 128px atlas height.
+            // This uses the bottommost valid 16x16 cell; verify its artwork
+            // against TinyFarmAtlas if a specific chest tile is required.
+            var chest = PixelArt.Slice("TinyFarmAtlas", 64, 96, 16, 16);
             MakeStationWithSprite(_yard, "Trade and Request Box", chest, StationKind.OrderBoard,
                 "Open the trade and request box", new Vector2(-3.0f, -1.0f));
         }
@@ -253,11 +243,12 @@ namespace CottageMagic
             _traderVisit.SetParent(_yard, false);
             var stall = PixelArt.Slice("PunyWorld", 64, 496, 32, 16);
             var stallObject = MakeSprite(_traderVisit, "Merchant's Wooden Stall", stall, new Vector2(6.125f, 1.875f), SortOrder(1.875f));
-            // The counter must draw over the merchant's feet, while the wares
-            // sit on the top edge of the counter instead of floating beside it.
             stallObject.GetComponent<SpriteRenderer>().sortingOrder = SortOrder(1.375f);
-            var blueBottle = PixelArt.Slice("TinyTownAtlas", 128, 128, 16, 16, PixelArt.PixelsPerUnit * 2f, new Vector2(0.5f, 0f));
-            var clayPot = PixelArt.Slice("TinyTownAtlas", 176, 128, 16, 16, PixelArt.PixelsPerUnit * 2f, new Vector2(0.5f, 0f));
+
+            // y=128 was outside the 128px-high TinyTownAtlas. Use y=112,
+            // the last valid row for a 16x16 crop.
+            var blueBottle = PixelArt.Slice("TinyFarmAtlas", 16, 96, 16, 16, PixelArt.PixelsPerUnit * 2f, new Vector2(0.5f, 0f));
+            var clayPot = PixelArt.Slice("TinyFarmAtlas", 48, 96, 16, 16, PixelArt.PixelsPerUnit * 2f, new Vector2(0.5f, 0f));
             MakeSprite(_traderVisit, "Blue Bottle for Sale", blueBottle, new Vector2(5.65f, 2.375f), SortOrder(1.0f));
             MakeSprite(_traderVisit, "Clay Pot for Sale", clayPot, new Vector2(6.6f, 2.375f), SortOrder(1.0f));
             var marketSign = PixelArt.Slice("TinyTownAtlas", 176, 96, 16, 16);
@@ -290,8 +281,6 @@ namespace CottageMagic
             var room = PixelArt.Slice("GrannyIndoor", 0, 0, 224, 224);
             MakeSprite(_home, "Warm cottage room", room, Vector2.zero, -20);
 
-            // Use tight, verified crops so no neighboring atlas pixels or
-            // empty padding make the furniture look broken or off-center.
             var fireplace = PixelArt.Slice("GrannyIndoor", 0, 272, 64, 20);
             var clock = PixelArt.Slice("GrannyIndoor", 32, 224, 32, 32);
             var window = PixelArt.Slice("GrannyIndoor", 64, 224, 32, 32);
@@ -300,7 +289,8 @@ namespace CottageMagic
             var vase = PixelArt.Slice("GrannyIndoor", 128, 240, 32, 16, PixelArt.PixelsPerUnit, new Vector2(0.5f, 0f));
             var scrollDesk = PixelArt.Slice("PunyWorld", 64, 496, 32, 16);
             var enchantDesk = PixelArt.Slice("PunyWorld", 112, 496, 32, 16);
-            var chest = PixelArt.Slice("TinyFarmAtlas", 128, 160, 16, 16);
+            // Same out-of-bounds chest coordinate as the yard trade box.
+            var chest = PixelArt.Slice("TinyFarmAtlas", 64, 96, 16, 16);
             var stool = PixelArt.Slice("PunyWorld", 128, 480, 16, 16);
 
             MakeStationWithSprite(_home, "Potion Hearth", fireplace, StationKind.Potion,
@@ -320,8 +310,6 @@ namespace CottageMagic
             MakeSprite(_home, "Window", window, new Vector2(2.75f, 2.95f), SortOrder(2.95f));
             MakeSprite(_home, "Potted Cottage Plant", pottedPlant, new Vector2(4.55f, -2.3f), SortOrder(-2.3f));
             MakeSprite(_home, "Cottage Storage Chest", chest, new Vector2(-4.6f, -3.25f), SortOrder(-3.25f));
-            // Treat the door as part of the rear wall so the player remains
-            // visible while standing on the threshold.
             MakeSprite(_home, "Interior Cottage Door", insideDoor, new Vector2(0, -3.9f), SortOrder(-2.3f));
             MakeInteractable(_home, "Back Door", StationKind.DoorOut, "Go out to the garden", new Vector2(0, -3.15f));
 
