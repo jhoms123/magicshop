@@ -153,12 +153,18 @@ namespace CottageMagic
             GUILayout.Label("Day " + Game.Day + "   " + Game.ClockText() + "   ·   30 min / day", _smallStyle);
             GUILayout.EndArea();
 
-            GUI.Box(new Rect(884, 18, 376, 112), GUIContent.none, _hudStyle);
-            GUILayout.BeginArea(new Rect(902, 25, 340, 96));
-            GUILayout.Label("TRADE & REQUEST BOX", _titleStyle);
-            GUILayout.Label(Game.PendingRequestCount + " new  ·  " + Game.ActiveCommissionCount + " active", _smallStyle);
-            GUILayout.Label(Game.TraderStatusText, _smallStyle);
-            GUILayout.EndArea();
+            // Keep the room's back-wall window and clock unobstructed. The
+            // request box remains one key away indoors and gets its full
+            // schedule card in the yard where the trader is visible.
+            if (Game.World == null || !Game.World.IsInterior)
+            {
+                GUI.Box(new Rect(884, 18, 376, 112), GUIContent.none, _hudStyle);
+                GUILayout.BeginArea(new Rect(902, 25, 340, 96));
+                GUILayout.Label("TRADE & REQUEST BOX", _titleStyle);
+                GUILayout.Label(Game.PendingRequestCount + " new  ·  " + Game.ActiveCommissionCount + " active", _smallStyle);
+                GUILayout.Label(Game.TraderStatusText, _smallStyle);
+                GUILayout.EndArea();
+            }
 
             GUI.Box(new Rect(818, 680, 442, 28), GUIContent.none, _hudStyle);
             GUILayout.BeginArea(new Rect(831, 683, 416, 22));

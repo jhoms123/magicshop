@@ -23,8 +23,8 @@ The project uses Unity's built-in Tilemap, 2D physics and IMGUI modules, so ther
 
 ## What is in the starter
 
-- Smoothly accelerated, normalized 8-way movement with a collision body, interpolated physics, four-cardinal idle and walk animation from CC0 character sheets, and a following camera snapped to the pixel grid.
-- A cottage set clear of the HUD, with a furnished room, working entrance and a garden enclosed by forest. A sand path runs from the door to the permanent trade and request chest, then ends at a collidable fence and sign. Six true soil beds flank the path; the last three cost 55 coins each to open.
+- Smoothly accelerated, normalized 8-way movement with a collision body, interpolated physics, correctly mapped 8-direction idle and walk frames, and a player sprite snapped to the source-pixel grid.
+- A cottage set clear of the yard HUD, with a furnished room, working entrance and a garden framed by forest. A sand path runs from the door past the permanent trade and request box, then stops at a fence beside the trail sign. Six true soil beds line the garden; the last three cost 55 coins each to open.
 - Five seeds with four visible growth stages. Plants need six waterings on separate in-game days; Mooncap and Dreammint need Moonwater, and the carnivorous Bitebloom needs a morsel in its special-item slot.
 - Three planting slots for seed, optional soil and an optional magical or feeding item. Rich soil and charms improve harvest output.
 - A furnished cottage interior with a fireplace, wall clock, window, storage chest, potted plant and two work tables for potion, scroll and enchantment crafting. The clock advances to the next morning so plants can be watered again.
@@ -34,7 +34,7 @@ The project uses Unity's built-in Tilemap, 2D physics and IMGUI modules, so ther
 - The traveling trader visits every third in-game day, from 10:00am to 5:00pm. The merchant and stall are hidden while away, and the box shows the next visit.
 - Autosaved garden, inventory, money, reputation, requests, trade history, clock and location in Unity's `Application.persistentDataPath`. Existing version 1 saves are migrated with their current requests preserved as accepted commissions.
 
-An in-game day lasts 30 real-world minutes while the game is running. Orders and the clock continue while station menus are open. The HUD shows request counts and the trader's schedule. Art sheets are cropped to their verified source bounds at runtime, and the camera and textures use point sampling with pixel-aligned scale.
+An in-game day lasts 30 real-world minutes while the game is running. Orders and the clock continue while station menus are open. The yard HUD shows request counts and the trader's schedule; its schedule card hides indoors so the room stays visible. Art sheets are cropped to verified source bounds at runtime, and the camera, textures and player renderer use point sampling and pixel-aligned placement.
 
 ## Reference guides
 

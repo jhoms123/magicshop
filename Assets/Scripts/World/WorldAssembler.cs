@@ -40,7 +40,7 @@ namespace CottageMagic
 
         public Vector2 ClampInteriorPosition(Vector2 point)
         {
-            return new Vector2(Mathf.Clamp(point.x, -5.65f, 5.65f), Mathf.Clamp(point.y, -5.55f, 5.4f));
+            return new Vector2(Mathf.Clamp(point.x, -5.65f, 5.65f), Mathf.Clamp(point.y, -5.35f, 3.95f));
         }
 
         public void RefreshPlots()
@@ -150,27 +150,29 @@ namespace CottageMagic
             };
 
             int variant = 0;
-            for (float x = -7.2f; x <= 7.21f; x += 3.6f)
-                MakeForestPatch(forest[variant++ % forest.Length], new Vector2(x, 5.25f));
+            // Place the forest as a continuous soft frame, with the larger
+            // middle opening reserved for the path and garden.
+            float[] topTrees = { -7.5f, -4.5f, -1.5f, 1.5f, 4.5f, 7.5f };
+            for (int i = 0; i < topTrees.Length; i++)
+                MakeForestPatch(forest[variant++ % forest.Length], new Vector2(topTrees[i], 5.25f));
 
-            for (float y = 2.0f; y >= -2.2f; y -= 3.8f)
+            float[] sideY = { 2.1f, -1.25f, -4.3f };
+            for (int i = 0; i < sideY.Length; i++)
             {
-                MakeForestPatch(forest[variant++ % forest.Length], new Vector2(-8.4f, y));
-                MakeForestPatch(forest[variant++ % forest.Length], new Vector2(8.4f, y));
+                MakeForestPatch(forest[variant++ % forest.Length], new Vector2(-9.4f, sideY[i]));
+                MakeForestPatch(forest[variant++ % forest.Length], new Vector2(9.4f, sideY[i]));
             }
 
-            // Leave the middle opening visible so the path reads clearly before
-            // ending at the fence. The lower forest continues behind the fence.
-            MakeForestPatch(forest[variant++ % forest.Length], new Vector2(-7.2f, -5.1f));
-            MakeForestPatch(forest[variant++ % forest.Length], new Vector2(-3.6f, -5.1f));
-            MakeForestPatch(forest[variant++ % forest.Length], new Vector2(3.6f, -5.1f));
-            MakeForestPatch(forest[variant % forest.Length], new Vector2(7.2f, -5.1f));
+            // The open center keeps the one-way forest trail legible.
+            MakeForestPatch(forest[variant++ % forest.Length], new Vector2(-7.5f, -5.7f));
+            MakeForestPatch(forest[variant++ % forest.Length], new Vector2(-4.5f, -5.7f));
+            MakeForestPatch(forest[variant++ % forest.Length], new Vector2(4.5f, -5.7f));
+            MakeForestPatch(forest[variant % forest.Length], new Vector2(7.5f, -5.7f));
         }
 
         private void MakeForestPatch(Sprite sprite, Vector2 position)
         {
-            var patch = MakeSprite(_yard, "Forest Edge", sprite, position, -18);
-            patch.GetComponent<SpriteRenderer>().color = new Color32(244, 250, 226, 255);
+            MakeSprite(_yard, "Forest Edge", sprite, position, -18);
         }
 
         private void BuildGarden()
@@ -212,16 +214,19 @@ namespace CottageMagic
                 _plotVisuals.Add(plotVisual);
             }
 
-            var flower = PixelArt.Slice("TinyFarmAtlas", 176, 112, 16, 16);
-            MakeSprite(_yard, "Garden flower", flower, new Vector2(2.0f, -4.45f), SortOrder(-4.45f));
-            MakeSprite(_yard, "Garden flower", flower, new Vector2(7.95f, -4.25f), SortOrder(-4.25f));
-            MakeSprite(_yard, "Garden flower", flower, new Vector2(-1.5f, 0.15f), SortOrder(0.15f));
+            var flower = PixelArt.Slice("TinyFarmAtlas", 176, 96, 16, 16);
+            MakeSprite(_yard, "Garden flower", flower, new Vector2(-2.65f, 0.15f), SortOrder(0.15f));
+            MakeSprite(_yard, "Garden flower", flower, new Vector2(2.0f, -3.8f), SortOrder(-3.8f));
+            MakeSprite(_yard, "Garden flower", flower, new Vector2(7.85f, -3.8f), SortOrder(-3.8f));
+            MakeSprite(_yard, "Garden flower", flower, new Vector2(2.25f, 0.2f), SortOrder(0.2f));
             RefreshPlots();
         }
 
         private void BuildTradeBox()
         {
-            var chest = PixelArt.Slice("TinyTownAtlas", 160, 128, 16, 16);
+            // A proper wood-bin crop from the farm atlas; the old coordinate
+            // selected a coin purse, which made the shipping point look wrong.
+            var chest = PixelArt.Slice("TinyFarmAtlas", 128, 160, 16, 16);
             MakeStationWithSprite(_yard, "Trade and Request Box", chest, StationKind.OrderBoard,
                 "Open the trade and request box", new Vector2(-3.0f, -1.0f));
         }
@@ -243,18 +248,27 @@ namespace CottageMagic
         {
             _traderVisit = new GameObject("Visiting Trader Stop").transform;
             _traderVisit.SetParent(_yard, false);
-            var stall = PixelArt.Slice("PunyWorld", 64, 512, 32, 16);
-            var stallObject = MakeSprite(_traderVisit, "Merchant's Wooden Stall", stall, new Vector2(5.55f, 1.15f), SortOrder(1.15f));
+            var stall = PixelArt.Slice("PunyWorld", 64, 496, 32, 16);
+            var stallObject = MakeSprite(_traderVisit, "Merchant's Wooden Stall", stall, new Vector2(6.125f, 1.875f), SortOrder(1.875f));
+            // The counter must draw over the merchant's feet, while the wares
+            // sit on the top edge of the counter instead of floating beside it.
+            stallObject.GetComponent<SpriteRenderer>().sortingOrder = SortOrder(1.375f);
+            var blueBottle = PixelArt.Slice("TinyTownAtlas", 128, 128, 16, 16, PixelArt.PixelsPerUnit, new Vector2(0.5f, 0f));
+            var clayPot = PixelArt.Slice("TinyTownAtlas", 176, 128, 16, 16, PixelArt.PixelsPerUnit, new Vector2(0.5f, 0f));
+            MakeSprite(_traderVisit, "Blue Bottle for Sale", blueBottle, new Vector2(5.625f, 2.375f), SortOrder(1.0f));
+            MakeSprite(_traderVisit, "Clay Pot for Sale", clayPot, new Vector2(6.625f, 2.375f), SortOrder(1.0f));
+            var marketSign = PixelArt.Slice("TinyTownAtlas", 176, 96, 16, 16);
+            MakeSprite(_traderVisit, "Trader's Market Sign", marketSign, new Vector2(7.4375f, 2.625f), SortOrder(2.625f));
 
             var merchant = new GameObject("Traveling Trader");
             merchant.transform.SetParent(_traderVisit, false);
-            merchant.transform.localPosition = new Vector3(5.55f, 2.05f, 0);
+            merchant.transform.localPosition = new Vector3(6.125f, 2.0625f, 0);
             var merchantSprite = merchant.AddComponent<SpriteRenderer>();
             merchantSprite.sprite = PixelArt.CharacterFrame("PunyMerchant", 0, false, 1);
             merchantSprite.sortingOrder = SortOrder(merchant.transform.position.y);
             var collider = merchant.AddComponent<CircleCollider2D>();
             collider.radius = 0.3f;
-            collider.offset = new Vector2(0, -0.15f);
+            collider.offset = new Vector2(0, 0.16f);
             var animation = merchant.AddComponent<IdlePixelAnimation>();
             animation.Target = merchantSprite;
             animation.CharacterSheet = "PunyMerchant";
@@ -273,33 +287,40 @@ namespace CottageMagic
             var room = PixelArt.Slice("GrannyIndoor", 0, 0, 224, 224);
             MakeSprite(_home, "Warm cottage room", room, Vector2.zero, -20);
 
-            // Each prop below uses the whole source sprite from the interior
-            // sheet. This avoids the earlier clock/fireplace slices crossing
-            // into a neighboring row of atlas art.
-            var fireplace = PixelArt.Slice("GrannyIndoor", 0, 256, 96, 48);
+            // Use tight, verified crops so no neighboring atlas pixels or
+            // empty padding make the furniture look broken or off-center.
+            var fireplace = PixelArt.Slice("GrannyIndoor", 0, 272, 64, 20);
             var clock = PixelArt.Slice("GrannyIndoor", 32, 224, 32, 32);
             var window = PixelArt.Slice("GrannyIndoor", 64, 224, 32, 32);
             var insideDoor = PixelArt.Slice("GrannyIndoor", 96, 224, 32, 64);
-            var pottedPlant = PixelArt.Slice("GrannyIndoor", 0, 224, 32, 32);
-            var bowl = PixelArt.Slice("GrannyIndoor", 128, 224, 32, 16);
-            var workTable = PixelArt.Slice("PunyWorld", 64, 512, 32, 16);
-            var chest = PixelArt.Slice("TinyTownAtlas", 160, 128, 16, 16);
+            var pottedPlant = PixelArt.Slice("GrannyIndoor", 0, 240, 32, 16);
+            var vase = PixelArt.Slice("GrannyIndoor", 128, 240, 32, 16, PixelArt.PixelsPerUnit, new Vector2(0.5f, 0f));
+            var scrollDesk = PixelArt.Slice("PunyWorld", 64, 496, 32, 16);
+            var enchantDesk = PixelArt.Slice("PunyWorld", 112, 496, 32, 16);
+            var chest = PixelArt.Slice("TinyFarmAtlas", 128, 160, 16, 16);
+            var stool = PixelArt.Slice("PunyWorld", 128, 480, 16, 16);
 
             MakeStationWithSprite(_home, "Potion Hearth", fireplace, StationKind.Potion,
-                "Brew a potion", new Vector2(-2.75f, 3.65f));
-            var scrollTable = MakeStationWithSprite(_home, "Scroll Writing Table", workTable, StationKind.Scroll,
-                "Write scrolls and distill ink", new Vector2(-0.35f, 1.0f));
-            MakeSprite(_home, "Scroll Table Bowl", bowl, new Vector2(-0.05f, 1.35f), SortOrder(scrollTable.transform.position.y) + 2);
-            var enchantTable = MakeStationWithSprite(_home, "Enchantment Table", workTable, StationKind.Enchant,
-                "Enchant a blade", new Vector2(2.55f, -0.9f));
-            MakeSprite(_home, "Enchantment Bowl", bowl, new Vector2(2.85f, -0.55f), SortOrder(enchantTable.transform.position.y) + 2);
+                "Brew a potion", new Vector2(-1.0f, 3.25f));
+            var scrollTable = MakeStationWithSprite(_home, "Scroll Writing Table", scrollDesk, StationKind.Scroll,
+                "Write scrolls and distill ink", new Vector2(-1.55f, 0.85f));
+            var scrollTableTop = scrollTable.transform.position.y + scrollDesk.bounds.size.y * 0.5f;
+            MakeSprite(_home, "Scroll Desk Vase", vase, new Vector2(-1.55f, scrollTableTop), SortOrder(scrollTable.transform.position.y) + 2);
+            MakeSprite(_home, "Scroll Desk Stool", stool, new Vector2(-1.55f, -0.05f), SortOrder(-0.05f));
+            var enchantTable = MakeStationWithSprite(_home, "Enchantment Table", enchantDesk, StationKind.Enchant,
+                "Enchant a blade", new Vector2(1.65f, -1.25f));
+            var enchantTableTop = enchantTable.transform.position.y + enchantDesk.bounds.size.y * 0.5f;
+            MakeSprite(_home, "Enchantment Desk Vase", vase, new Vector2(1.65f, enchantTableTop), SortOrder(enchantTable.transform.position.y) + 2);
+            MakeSprite(_home, "Enchantment Desk Stool", stool, new Vector2(1.65f, -2.15f), SortOrder(-2.15f));
             MakeStationWithSprite(_home, "Wall Clock", clock, StationKind.Rest,
-                "Rest until morning", new Vector2(1.4f, 2.75f));
-            MakeSprite(_home, "Window", window, new Vector2(3.55f, 4.05f), SortOrder(4.05f));
-            MakeSprite(_home, "Potted Cottage Plant", pottedPlant, new Vector2(4.75f, -2.3f), SortOrder(-2.3f));
-            MakeSprite(_home, "Cottage Storage Chest", chest, new Vector2(-4.8f, -3.55f), SortOrder(-3.55f));
-            MakeSprite(_home, "Interior Cottage Door", insideDoor, new Vector2(0, -4.48f), SortOrder(-4.48f));
-            MakeInteractable(_home, "Back Door", StationKind.DoorOut, "Go out to the garden", new Vector2(0, -3.75f));
+                "Rest until morning", new Vector2(1.45f, 2.45f));
+            MakeSprite(_home, "Window", window, new Vector2(2.75f, 2.95f), SortOrder(2.95f));
+            MakeSprite(_home, "Potted Cottage Plant", pottedPlant, new Vector2(4.55f, -2.3f), SortOrder(-2.3f));
+            MakeSprite(_home, "Cottage Storage Chest", chest, new Vector2(-4.6f, -3.25f), SortOrder(-3.25f));
+            // Treat the door as part of the rear wall so the player remains
+            // visible while standing on the threshold.
+            MakeSprite(_home, "Interior Cottage Door", insideDoor, new Vector2(0, -3.9f), SortOrder(-2.3f));
+            MakeInteractable(_home, "Back Door", StationKind.DoorOut, "Go out to the garden", new Vector2(0, -3.15f));
 
             AddBounds(_home, -6.0f, 6.0f, -5.9f, 5.9f, 0.7f);
         }
@@ -310,7 +331,11 @@ namespace CottageMagic
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
-            go.transform.position = position;
+            float pixelsPerUnit = PixelArt.PixelsPerUnit;
+            go.transform.position = new Vector3(
+                Mathf.Round(position.x * pixelsPerUnit) / pixelsPerUnit,
+                Mathf.Round(position.y * pixelsPerUnit) / pixelsPerUnit,
+                0f);
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
             renderer.sortingOrder = sortingOrder;

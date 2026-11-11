@@ -18,7 +18,7 @@ namespace CottageMagic
             var camera = cameraObject.AddComponent<Camera>();
             camera.orthographic = true;
             camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = new Color32(116, 151, 93, 255);
+            camera.backgroundColor = new Color32(133, 166, 67, 255);
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 100f;
             camera.allowMSAA = false;
@@ -37,7 +37,6 @@ namespace CottageMagic
             var body = playerObject.AddComponent<Rigidbody2D>();
             body.bodyType = RigidbodyType2D.Dynamic;
             playerObject.AddComponent<CircleCollider2D>();
-            playerObject.AddComponent<SpriteRenderer>();
             var player = playerObject.AddComponent<PlayerMotor>();
             player.Initialize(camera);
             director.Player = player;

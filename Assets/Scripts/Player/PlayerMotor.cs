@@ -2,11 +2,12 @@ using UnityEngine;
 
 namespace CottageMagic
 {
-    [RequireComponent(typeof(Rigidbody2D), typeof(CircleCollider2D), typeof(SpriteRenderer))]
+    [RequireComponent(typeof(Rigidbody2D), typeof(CircleCollider2D))]
     public sealed class PlayerMotor : MonoBehaviour
     {
         private Rigidbody2D _body;
         private SpriteRenderer _sprite;
+        private Transform _spriteRoot;
         private Camera _camera;
         private Vector2 _moveInput;
         private Vector2 _lastMove = Vector2.down;
@@ -34,8 +35,11 @@ namespace CottageMagic
             _body.constraints = RigidbodyConstraints2D.FreezeRotation;
             var collider = GetComponent<CircleCollider2D>();
             collider.radius = 0.25f;
-            collider.offset = new Vector2(0, -0.12f);
-            _sprite = GetComponent<SpriteRenderer>();
+            collider.offset = new Vector2(0, 0.16f);
+            var spriteObject = new GameObject("Pixel-Snapped Character");
+            _spriteRoot = spriteObject.transform;
+            _spriteRoot.SetParent(transform, false);
+            _sprite = spriteObject.AddComponent<SpriteRenderer>();
             _sprite.sprite = PixelArt.CharacterFrame("PunyPlayer", _direction, false, 1);
             _sprite.sortingOrder = 40;
         }
@@ -70,13 +74,29 @@ namespace CottageMagic
         private void LateUpdate()
         {
             if (_camera == null) return;
-            Vector3 desired = new Vector3(transform.position.x, transform.position.y + 0.55f, -10f);
+            bool interior = MagicShopDirector.Instance != null && MagicShopDirector.Instance.World != null && MagicShopDirector.Instance.World.IsInterior;
+            Vector3 desired = interior
+                ? new Vector3(0f, -0.5f, -10f)
+                : new Vector3(transform.position.x, transform.position.y + 0.55f, -10f);
+            _camera.backgroundColor = interior ? new Color32(77, 19, 19, 255) : new Color32(133, 166, 67, 255);
             _cameraTarget = Vector3.SmoothDamp(_cameraTarget == Vector3.zero ? desired : _cameraTarget, desired, ref _cameraVelocity, 0.12f);
-            float pixelStep = (_camera.orthographicSize * 2f) / Mathf.Max(1, Screen.height);
+            // Snap both camera and visible sprite to the source-art grid. The
+            // camera's output pixel step is too fine for 16px art and causes
+            // tiny fractional shifts as the player walks.
+            float pixelStep = 1f / PixelArt.PixelsPerUnit;
             _camera.transform.position = new Vector3(
                 Mathf.Round(_cameraTarget.x / pixelStep) * pixelStep,
                 Mathf.Round(_cameraTarget.y / pixelStep) * pixelStep,
                 -10f);
+
+            if (_spriteRoot != null)
+            {
+                _spriteRoot.localPosition = Vector3.zero;
+                Vector3 renderPosition = transform.position;
+                renderPosition.x = Mathf.Round(renderPosition.x / pixelStep) * pixelStep;
+                renderPosition.y = Mathf.Round(renderPosition.y / pixelStep) * pixelStep;
+                _spriteRoot.position = renderPosition;
+            }
         }
 
         public void Teleport(Vector2 point)
@@ -106,10 +126,8 @@ namespace CottageMagic
 
         private void Animate(bool walking)
         {
-            if (_lastMove.x < -0.35f) _direction = 2;
-            else if (_lastMove.x > 0.35f) _direction = 6;
-            else if (_lastMove.y > 0.35f) _direction = 4;
-            else _direction = 0;
+            float angle = Mathf.Atan2(_lastMove.y, _lastMove.x) * Mathf.Rad2Deg;
+            _direction = (Mathf.RoundToInt((angle + 90f) / 45f) % 8 + 8) % 8;
 
             if (!walking)
             {

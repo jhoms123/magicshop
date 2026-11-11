@@ -55,15 +55,15 @@ namespace CottageMagic
             return Slice("base_male", column * 48, row * 64, 48, 64, 48f);
         }
 
-        // Puny Characters uses 32x32 source cells, with eight directions per
-        // row. Cropping transparent padding keeps the actual people readable
-        // at the game's 16-pixel-per-unit scale. The custom pivot preserves
-        // the original cell center, so animation does not wobble as frames change.
+        // Puny Characters uses eight 32x32 facing rows and three animation
+        // frames in the first three columns. Keep the complete silhouette,
+        // trim the sheet padding, and anchor at the feet so the sprite, collider,
+        // and depth sorting all agree about where the character stands.
         public static Sprite CharacterFrame(string sheet, int direction, bool walking, int frame)
         {
-            int column = Mathf.Clamp(direction, 0, 7) * 3 + Mathf.Clamp(frame, 0, 2);
-            int row = walking ? 1 : 0;
-            return Slice(sheet, column * 32 + 8, row * 32 + 2, 18, 26, PixelsPerUnit, new Vector2(8f / 18f, 12f / 26f));
+            int column = walking ? Mathf.Clamp(frame, 0, 2) : 1;
+            int row = Mathf.Clamp(direction, 0, 7);
+            return Slice(sheet, column * 32 + 8, row * 32 + 2, 18, 26, PixelsPerUnit, new Vector2(8f / 18f, 4f / 26f));
         }
 
         public static Sprite GrannyFrame(int column, int row)
