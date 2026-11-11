@@ -1,6 +1,6 @@
 # Cottage Magic Shop
 
-A playable Unity 2D starter for a cozy pixel-art gardening and magic-shop game. The outdoor yard, cottage room, player, merchant and growing plant sprites all come from existing open-license pixel-art packs. No generated artwork is included.
+A playable Unity 2D starter for a cozy pixel-art gardening and magic-shop game. The yard now uses reference-style grass, tilled soil, trees, character frames and crop stages. The witch trader and potion stations use a cauldron, potion shelf, hanging herbs and a fox-witch sprite. Asset sources, licenses and the witch pack's AI-art disclosure are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Open and play
 
@@ -23,11 +23,11 @@ The project uses Unity's built-in Tilemap, 2D physics and IMGUI modules, so ther
 
 ## What is in the starter
 
-- Smoothly accelerated, normalized 8-way movement with a collision body, interpolated physics, correctly mapped 8-direction idle and walk frames, and a player sprite snapped to the source-pixel grid.
-- A cottage set clear of the yard HUD, with a furnished room, working entrance and a garden framed by forest. A sand path runs from the door past the permanent trade and request box, then stops at a fence beside the trail sign. Six true soil beds line the garden; the last three cost 55 coins each to open.
+- Smoothly accelerated, normalized 8-way movement with a collision body, interpolated physics, four matching facing directions, and a player sprite snapped to the source-pixel grid.
+- A cottage set clear of the yard HUD, with a furnished room, working entrance and a garden framed by matching forest sprites. A tilled-earth path runs from the door past the permanent trade and request chest, then stops at a wooden fence beside the trail sign. Six soil beds line the garden; the last three cost 55 coins each to open.
 - Five seeds with four visible growth stages. Plants need six waterings on separate in-game days; Mooncap and Dreammint need Moonwater, and the carnivorous Bitebloom needs a morsel in its special-item slot.
 - Three planting slots for seed, optional soil and an optional magical or feeding item. Rich soil and charms improve harvest output.
-- A furnished cottage interior with a fireplace, wall clock, window, storage chest, potted plant and two work tables for potion, scroll and enchantment crafting. The clock advances to the next morning so plants can be watered again.
+- A furnished cottage interior with a bubbling cauldron, potion shelf, hanging herbs, wall clock, window, storage chest, potted plant and two work tables for potion, scroll and enchantment crafting. The clock advances to the next morning so plants can be watered again.
 - Potion brewing with one to three ingredients, harmful/neutral/helpful outcomes, and strength based on ingredient effects.
 - Ingredient-to-ink distilling, parchment scroll writing, and higher-tier weapon enchanting.
 - Customer requests arrive in the permanent trade box. Accepting starts the deadline; declining has no penalty. Deliveries, missed commissions, request decisions, purchases and sales remain in the box's history. Completed requests pay coins and reputation, with faster-delivery bonuses.
@@ -38,7 +38,7 @@ An in-game day lasts 30 real-world minutes while the game is running. Orders and
 
 ## Reference guides
 
-The yard layout and gardening flow were informed by [2D-Game-Farming-RPG](https://github.com/Raphaelsl/2D-Game-Farming-RPG-) and [2D-Farming-Game](https://github.com/wkoziel/2D-Farming-Game). Unity's [Happy Harvest techniques](https://unity.com/blog/games/happy-harvest-demo-latest-2d-techniques) informed the separate ground and path tilemaps and layered environment. These projects are design references; no code or art was copied from them.
+The yard layout and farming art follow [2D Farming Game](https://github.com/gadget-hq/2d-farming-game). Its Sprout Lands art is credited and licensed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Unity's [Happy Harvest techniques](https://unity.com/blog/games/happy-harvest-demo-latest-2d-techniques) informed the separate ground and path tilemaps and layered environment.
 
 ## Continuing development
 
@@ -54,4 +54,4 @@ Game balance and initial stock can be changed in `GameData.cs`. The visual world
 
 ## Asset credits
 
-Open [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for links and license notes. All included pixel art comes from open-license packs; no art was generated for this project. The Kenney source tiles were only arranged into runtime atlases. The HUD and menus use a CC0 pixel UI pack, and the UI font is Silkscreen under the SIL Open Font License.
+Open [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for asset links and license notes. The witch sampler's creator discloses AI-assisted graphics. The HUD and menus use a CC0 pixel UI pack, and the UI font is Silkscreen under the SIL Open Font License.

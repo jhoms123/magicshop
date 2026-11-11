@@ -61,17 +61,19 @@ namespace CottageMagic
 
         private Sprite PlantArt(string species, int stage)
         {
-            int x;
-            int y;
+            int row;
             switch (species)
             {
-                case "mooncap": x = new[] { 48, 64, 80, 96 }[stage]; y = 16; break;
-                case "emberroot": x = new[] { 112, 128, 144, 176 }[stage]; y = 32; break;
-                case "glowberry": x = new[] { 48, 64, 80, 96 }[stage]; y = 32; break;
-                case "dreammint": x = new[] { 64, 80, 96, 128 }[stage]; y = 16; break;
-                default: x = new[] { 64, 80, 96, 128 }[stage]; y = 32; break;
+                case "mooncap": row = 0; break;
+                case "emberroot": row = 1; break;
+                case "glowberry": row = 2; break;
+                case "dreammint": row = 3; break;
+                case "bitebloom": row = 4; break;
+                default: row = 1; break;
             }
-            return PixelArt.Slice("TinyFarmAtlas", x, y, 16, 16);
+            int growthStage = Mathf.Clamp(stage, 0, 3);
+            return PixelArt.Slice("MagicFarm/Crops", growthStage * 16, row * 16, 16, 16,
+                PixelArt.PixelsPerUnit, new Vector2(0.5f, 0f));
         }
     }
 
