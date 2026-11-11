@@ -72,6 +72,9 @@ namespace CottageMagic
         {
             var gridObject = new GameObject("Yard Tile Grid");
             gridObject.transform.SetParent(_yard, false);
+            // Place cell centers on integer world coordinates, matching the
+            // doorway, trade box, garden beds and the source-pixel snap grid.
+            gridObject.transform.localPosition = new Vector3(-0.5f, -0.5f, 0f);
             gridObject.AddComponent<Grid>().cellSize = Vector3.one;
 
             var grassMap = CreateTilemap(gridObject.transform, "Grass Ground", -30);
@@ -253,10 +256,10 @@ namespace CottageMagic
             // The counter must draw over the merchant's feet, while the wares
             // sit on the top edge of the counter instead of floating beside it.
             stallObject.GetComponent<SpriteRenderer>().sortingOrder = SortOrder(1.375f);
-            var blueBottle = PixelArt.Slice("TinyTownAtlas", 128, 128, 16, 16, PixelArt.PixelsPerUnit, new Vector2(0.5f, 0f));
-            var clayPot = PixelArt.Slice("TinyTownAtlas", 176, 128, 16, 16, PixelArt.PixelsPerUnit, new Vector2(0.5f, 0f));
-            MakeSprite(_traderVisit, "Blue Bottle for Sale", blueBottle, new Vector2(5.625f, 2.375f), SortOrder(1.0f));
-            MakeSprite(_traderVisit, "Clay Pot for Sale", clayPot, new Vector2(6.625f, 2.375f), SortOrder(1.0f));
+            var blueBottle = PixelArt.Slice("TinyTownAtlas", 128, 128, 16, 16, PixelArt.PixelsPerUnit * 2f, new Vector2(0.5f, 0f));
+            var clayPot = PixelArt.Slice("TinyTownAtlas", 176, 128, 16, 16, PixelArt.PixelsPerUnit * 2f, new Vector2(0.5f, 0f));
+            MakeSprite(_traderVisit, "Blue Bottle for Sale", blueBottle, new Vector2(5.65f, 2.375f), SortOrder(1.0f));
+            MakeSprite(_traderVisit, "Clay Pot for Sale", clayPot, new Vector2(6.6f, 2.375f), SortOrder(1.0f));
             var marketSign = PixelArt.Slice("TinyTownAtlas", 176, 96, 16, 16);
             MakeSprite(_traderVisit, "Trader's Market Sign", marketSign, new Vector2(7.4375f, 2.625f), SortOrder(2.625f));
 
